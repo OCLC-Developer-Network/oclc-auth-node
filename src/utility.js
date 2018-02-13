@@ -2,16 +2,16 @@ module.exports = class Utility {
 
     parseTokenResponse(URLhash) {
 
-        var hash = URLhash.replace("#", "").split("&");
-        var hashParams = {};
-        var paramArray;
-        var x;
+        let hash = URLhash.replace("#", "").split("&"),
+            paramHash = {},
+            paramArray,
+            paramCounter;
 
-        for (x = 0; x < hash.length; x++) {
-            paramArray = hash[x].split("=");
-            hashParams[paramArray[0]] = paramArray[1];
+        for (paramCounter = 0; paramCounter < hash.length; paramCounter++) {
+            paramArray = hash[paramCounter].split("=");
+            paramHash[paramArray[0]] = paramArray[1];
         }
 
-        return hashParams;
+        return paramHash;
     }
 };
