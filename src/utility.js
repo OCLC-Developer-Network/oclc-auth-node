@@ -1,9 +1,4 @@
-module.exports = class Authenticate {
-
-    constructor(authParameters) {
-        this.authParameters = authParameters;
-    }
-
+module.exports = class Utility {
 
     parseTokenResponse(URLhash) {
 

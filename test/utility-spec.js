@@ -1,8 +1,8 @@
-let Authenticate = require("../src/authenticate.js");
+let Utility = require("../src/utility.js");
 
 describe("Utility functions", function () {
 
-    let authenticate = new Authenticate({});
+    let utility = new Utility();
 
     it("Should split a url", function () {
         const URLhash = "#access_token=tk_K5DqcydfIPeYVMbZJIHBvxTB5ZpXoTHXpMOm&state=undefined" +
@@ -22,6 +22,6 @@ describe("Utility functions", function () {
                 expires_at: '2017-12-06 20:36:51Z'
             };
 
-        expect(authenticate.parseTokenResponse(URLhash)).toEqual(expected);
+        expect(utility.parseTokenResponse(URLhash)).toEqual(expected);
     });
 });

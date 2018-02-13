@@ -1,15 +1,35 @@
-## Installation
+## Add the Library to Your Project
 
-```npm install```
-
-## Unit Tests
-
-```npm test```
+```
+npm install TODO
+```
 
 ## Usage
 
-In the root of your project, execute
+### Server Side HMAC Authentication
 
-npm install TODO
+TODO
 
-```let Authorize = require('authorize.js');```
+### Access Token with Client Credentials Grant
+
+TODO
+
+### Access Token with User Agent (Mobile Pattern)
+
+TODO
+
+## Clone and Test this Library
+
+### Installation
+
+```
+git clone TODO
+
+npm install
+```
+
+### Unit Tests
+
+```
+npm test
+```
