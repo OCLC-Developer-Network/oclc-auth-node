@@ -10,8 +10,6 @@
 
 In the root of your project, execute
 
-npm install http://git@git.ent.oclc.org/scm/~campbelg/node-authentication.git
-
-This will add
+npm install TODO
 
 ```let Authorize = require('authorize.js');```
