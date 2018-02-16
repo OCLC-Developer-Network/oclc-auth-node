@@ -11,5 +11,7 @@
   "devDependencies": {
     "jasmine-node": "^1.14.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "request": "^2.83.0"
+  }
 }
