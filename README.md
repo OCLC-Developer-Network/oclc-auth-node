@@ -21,6 +21,8 @@ See [Pull List Resource for WMS Circulation](https://www.oclc.org/developer/deve
 ##### Callback Style
 
 ```
+    const Hmac = require("../src/hmac.js");
+
     const hmac = new Hmac({
         "wskey": "YOUR CLIENT ID",
         "secret": "YOUR SECRET",
@@ -28,7 +30,7 @@ See [Pull List Resource for WMS Circulation](https://www.oclc.org/developer/deve
         "principalIdns": "YOU principal idns"
     });
 
-    hmac1.makeHmacRequestCallback({
+    hmac.makeHmacRequestCallback({
         "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
         "method": "GET",
         "body": "",
@@ -51,6 +53,16 @@ See [WMS NCIP Service Staff Profile](https://www.oclc.org/developer/develop/web-
 
 ##### Callback Style
 
+
+    const Hmac = require("../src/hmac.js");
+
+    const hmac = new Hmac({
+        "wskey": "YOUR CLIENT ID",
+        "secret": "YOUR SECRET",
+        "principalId": "YOUR principal id",
+        "principalIdns": "YOU principal idns"
+    });
+
     const body='<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
         '<CheckInItem>\n' +
         '<InitiationHeader>\n' +
@@ -69,7 +81,7 @@ See [WMS NCIP Service Staff Profile](https://www.oclc.org/developer/develop/web-
         '</CheckInItem>\n' +
         '</NCIPMessage>';
 
-    hmac1.makeHmacRequestCallback({
+    hmac.makeHmacRequestCallback({
         "url": "https://circ.sd00.worldcat.org/ncip",
         "method": "POST",
         "body": body,
@@ -77,9 +89,8 @@ See [WMS NCIP Service Staff Profile](https://www.oclc.org/developer/develop/web-
             "accept": "application/json"
         }
     }, function (error, response, body) {
+        // Do something with the response
         console.log(body);
-        expect(error).toBeNull();
-        done();
     });
 
 ##### Promise Style
