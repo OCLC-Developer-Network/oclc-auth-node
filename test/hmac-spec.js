@@ -1,4 +1,4 @@
-let Hmac = require("../src/hmac.js");
+const Hmac = require("../src/hmac.js");
 
 describe("HMAC Hashing", function () {
 

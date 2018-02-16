@@ -21,29 +21,55 @@ See [Pull List Resource for WMS Circulation](https://www.oclc.org/developer/deve
 ##### Callback Style
 
 ```
-    const Hmac = require("../src/hmac.js");
+const Hmac = require("../src/hmac.js");
 
-    const hmac = new Hmac({
-        "wskey": "YOUR CLIENT ID",
-        "secret": "YOUR SECRET",
-        "principalId": "YOUR principal id",
-        "principalIdns": "YOU principal idns"
-    });
+const hmac = new Hmac({
+    "wskey": "YOUR CLIENT ID",
+    "secret": "YOUR SECRET",
+    "principalId": "YOUR principal id",
+    "principalIdns": "YOU principal idns"
+});
 
-    hmac.makeHmacRequestCallback({
-        "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
-        "method": "GET",
-        "body": "",
-        "headers": {
-            "accept": "application/json"
-        }
-    }, function (error, response, body) {
-        // Do something with the response
-        console.log(body);
-    });
+hmac.makeHmacRequestCallback({
+    "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
+    "method": "GET",
+    "body": "",
+    "headers": {
+        "accept": "application/json"
+    }
+}, function (error, response, body) {
+    // Do something with the response
+    console.log(body);
+});
 ```
 
 ##### Promise Style
+
+```
+const Hmac = require("../src/hmac.js");
+
+const hmac = new Hmac({
+    "wskey": "YOUR CLIENT ID",
+    "secret": "YOUR SECRET",
+    "principalId": "YOUR principal id",
+    "principalIdns": "YOU principal idns"
+});
+
+hmac.makeHmacRequestPromise({
+    "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
+    "method": "GET",
+    "body": "",
+    "headers": {
+        "accept": "application/json"
+    }
+})
+    .then(function (response) {
+        console.log(response);
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+```
 
 #### Example of a POST request
 
@@ -53,48 +79,92 @@ See [WMS NCIP Service Staff Profile](https://www.oclc.org/developer/develop/web-
 
 ##### Callback Style
 
+```
+const Hmac = require("../src/hmac.js");
 
-    const Hmac = require("../src/hmac.js");
+const hmac = new Hmac({
+    "wskey": "YOUR CLIENT ID",
+    "secret": "YOUR SECRET",
+    "principalId": "YOUR principal id",
+    "principalIdns": "YOU principal idns"
+});
 
-    const hmac = new Hmac({
-        "wskey": "YOUR CLIENT ID",
-        "secret": "YOUR SECRET",
-        "principalId": "YOUR principal id",
-        "principalIdns": "YOU principal idns"
-    });
+const body='<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
+    '<CheckInItem>\n' +
+    '<InitiationHeader>\n' +
+    '<FromAgencyId>\n' +
+    '<AgencyId ncip:Scheme="http://oclc.org/ncip/schemes/agencyid.scm">129479</AgencyId>\n' +
+    '</FromAgencyId>\n' +
+    '<ToAgencyId>\n' +
+    '<AgencyId>129479</AgencyId>\n' +
+    '</ToAgencyId>\n' +
+    '<ApplicationProfileType ncip:Scheme="http://oclc.org/ncip/schemes/application-profile/platform.scm">Version 2011</ApplicationProfileType>\n' +
+    '</InitiationHeader>\n' +
+    '<ItemId>\n' +
+    '<AgencyId>128807</AgencyId>\n' +
+    '<ItemIdentifierValue>10176</ItemIdentifierValue>\n' +
+    '</ItemId>\n' +
+    '</CheckInItem>\n' +
+    '</NCIPMessage>';
 
-    const body='<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
-        '<CheckInItem>\n' +
-        '<InitiationHeader>\n' +
-        '<FromAgencyId>\n' +
-        '<AgencyId ncip:Scheme="http://oclc.org/ncip/schemes/agencyid.scm">129479</AgencyId>\n' +
-        '</FromAgencyId>\n' +
-        '<ToAgencyId>\n' +
-        '<AgencyId>129479</AgencyId>\n' +
-        '</ToAgencyId>\n' +
-        '<ApplicationProfileType ncip:Scheme="http://oclc.org/ncip/schemes/application-profile/platform.scm">Version 2011</ApplicationProfileType>\n' +
-        '</InitiationHeader>\n' +
-        '<ItemId>\n' +
-        '<AgencyId>128807</AgencyId>\n' +
-        '<ItemIdentifierValue>10176</ItemIdentifierValue>\n' +
-        '</ItemId>\n' +
-        '</CheckInItem>\n' +
-        '</NCIPMessage>';
-
-    hmac.makeHmacRequestCallback({
-        "url": "https://circ.sd00.worldcat.org/ncip",
-        "method": "POST",
-        "body": body,
-        "headers": {
-            "accept": "application/json"
-        }
-    }, function (error, response, body) {
-        // Do something with the response
-        console.log(body);
-    });
+hmac.makeHmacRequestCallback({
+    "url": "https://circ.sd00.worldcat.org/ncip",
+    "method": "POST",
+    "body": body,
+    "headers": {
+        "accept": "application/json"
+    }
+}, function (error, response, body) {
+    // Do something with the response
+    console.log(body);
+});
+```
 
 ##### Promise Style
 
+```
+const Hmac = require("../src/hmac.js");
+
+const hmac = new Hmac({
+    "wskey": "YOUR CLIENT ID",
+    "secret": "YOUR SECRET",
+    "principalId": "YOUR principal id",
+    "principalIdns": "YOU principal idns"
+});
+
+const body = '<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
+            '<CheckInItem>\n' +
+            '<InitiationHeader>\n' +
+            '<FromAgencyId>\n' +
+            '<AgencyId ncip:Scheme="http://oclc.org/ncip/schemes/agencyid.scm">129479</AgencyId>\n' +
+            '</FromAgencyId>\n' +
+            '<ToAgencyId>\n' +
+            '<AgencyId>129479</AgencyId>\n' +
+            '</ToAgencyId>\n' +
+            '<ApplicationProfileType ncip:Scheme="http://oclc.org/ncip/schemes/application-profile/platform.scm">Version 2011</ApplicationProfileType>\n' +
+            '</InitiationHeader>\n' +
+            '<ItemId>\n' +
+            '<AgencyId>128807</AgencyId>\n' +
+            '<ItemIdentifierValue>10176</ItemIdentifierValue>\n' +
+            '</ItemId>\n' +
+            '</CheckInItem>\n' +
+            '</NCIPMessage>';
+
+hmac.makeHmacRequestPromise({
+    "url": "https://circ.sd00.worldcat.org/ncip",
+    "method": "POST",
+    "body": body,
+    "headers": {
+        "accept": "application/json"
+    }
+})
+    .then(function (response) {
+        console.log(response);
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
+```
 
 TODO
 
