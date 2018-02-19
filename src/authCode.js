@@ -22,40 +22,7 @@ module.exports = class AuthCode {
         }
     }
 
-    isAuthParamsError() {
-
-        if (!this.authParams.clientId) {
-            return "Error: Missing clientId.";
-        }
-
-        if (!this.authParams.authenticatingInstitutionId || this.authParams.authenticatingInstitutionId.trim() === "") {
-            return "Error: Missing authenticatingInstitutionId.";
-        }
-
-        if (!this.authParams.contextInstitutionId || this.authParams.contextInstitutionId.trim() === "") {
-            return "Error: Missing contextInstitutionId.";
-        }
-
-        if (!this.authParams.redirectUri || this.authParams.redirectUri.trim() === "") {
-            return "Error: Missing redirectUri.";
-        }
-
-        if (!this.authParams.scope) {
-            return "Error: Missing scope.";
-        }
-
-        if (!Array.isArray(this.authParams.scope) || this.authParams.scope.length === 0) {
-            return "Error: Scope must be passed as an array of one or more strings.";
-        }
-    }
-
     getLoginUrl() {
-
-        const err = this.isAuthParamsError();
-
-        if (err) {
-            return {"err": err}
-        }
 
         // Build a space separated scope list from the array of scopes
         let scope = "";
@@ -74,6 +41,6 @@ module.exports = class AuthCode {
             "&response_type=" + this.authParams.responseType +
             "&scope=" + encodeURIComponent(scope);
 
-        return {"url": url}
+        return url
     }
 };

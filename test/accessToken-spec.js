@@ -1,8 +1,8 @@
-let Utility = require("../src/utility.js");
+let AccessToken = require("../src/accessToken.js");
 
-describe("Utility functions", function () {
+describe("Access Token methods", function () {
 
-    let utility = new Utility();
+    let accessToken = new AccessToken();
 
     it("Should split a url", function () {
         const URLhash = "#access_token=tk_K5DqcydfIPeYVMbZJIHBvxTB5ZpXoTHXpMOm&state=undefined" +
@@ -22,6 +22,6 @@ describe("Utility functions", function () {
                 expires_at: '2017-12-06 20:36:51Z'
             };
 
-        expect(utility.parseTokenResponse(URLhash)).toEqual(expected);
+        expect(accessToken.parseTokenResponse(URLhash)).toEqual(expected);
     });
 });

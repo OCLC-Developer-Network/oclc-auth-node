@@ -45,7 +45,11 @@ Pass the Authorization Header value along as an [Authorization Header](https://d
 
 ```https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1```
 
-### Explicit Authorization Code
+### Request an Access Token
+
+TODO
+
+### Request an Authorization Code for Explicit Flow
 
 You can make client to server requests (ie, from a web browser) using the [Explicit Authorization Code](https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html) pattern.
 
@@ -54,74 +58,40 @@ This is a two step process, first you request an authorization code. The user is
 #### Get an Authorization Code
 
 ```
-const AuthCode = require("../src/authCode.js");
+const Wskey = require("../src/wskey.js");
 
-const authCode = new AuthCode({
+const wskey = new Wskey({
     "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
-    "secret" : "eUK5Qz9AdsZQrCPRRliBzQ=="
-    "authenticatingInstitutionId": "128807",
-    "contextInstitutionId": "128807",
+    "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
+    "principalId": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
+    "principalIdns": "urn:oclc:wms:da",
+    "authenticatingInstitutionId":"128807",
+    "contextInstitutionId":"128807",
     "redirectUri": "http://localhost/auth/",
     "responseType": "code",
     "scope": ["WMS_CIRCULATION", "WMS_NCIP"]
 });
 
-let loginUrl = authCode.getLoginUrl();
+let loginUrl = wskey.getLoginUrl();
 
-if (loginUrl.err) {
-    // The error is not null, so print out the error message
-    console.log(loginUrl.err)
-} else {
-    // No error, use the url
-    console.log("The url is " + loginUrl.url)
-}
+console.log(loginUrl);
 ```
 
 If everything went right, loginUrl would look like this:
 
 ```
-{url: "https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=128807&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP"
-}
+https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=128807&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP
 ```
 
-You can then use that url to request an Authorization Code.
-
-#### Get an Access Token
-
-Once you've received an Authorization Code, you can request a Token. A typical Authorization Code would look like this:
+You can then use that url to request an Authorization Code, which should look like this:
 
 ```
 https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html
 ```
 
-To request the token (using the authCode defined in the previous step):
+#### Get an Access Token
 
-```
-let tokenRequestUrl = authCode.getTokenRequestUrl();
-
-if (tokenRequestUrl.err) {
-    // The error is not null, so print out the error message
-    console.log(loginUrl.err)
-} else {
-    // No error, use the url
-    console.log("The url is " + tokenRequestUrl.url)
-}
-```
-
-If everything went right, tokenRequestUrl would look like:
-
-```
-
-```
-
-
-### Access Token with Client Credentials Grant
-
-TODO
-
-### Access Token with User Agent (Mobile Pattern)
-
-TODO
+Once you've received an Authorization Code, you can request a Token.
 
 ## Clone and Test this Library
 

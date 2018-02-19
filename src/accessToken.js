@@ -1,4 +1,5 @@
-module.exports = class Utility {
+module.exports = class AccessToken {
+
 
     parseTokenResponse(URLhash) {
 
@@ -14,4 +15,6 @@ module.exports = class Utility {
 
         return paramHash;
     }
+
+    create(){}
 };

@@ -1,4 +1,4 @@
-module.exports = class Hmac {
+module.exports = class Wskey {
 
     constructor(authParams) {
 
@@ -6,7 +6,12 @@ module.exports = class Hmac {
             "clientId": authParams.clientId,
             "secret": authParams.secret,
             "principalId": authParams.principalId,
-            "principalIdns": authParams.principalIdns
+            "principalIdns": authParams.principalIdns,
+            "authenticatingInstitutionId": authParams.authenticatingInstitutionId,
+            "contextInstitutionId": authParams.contextInstitutionId,
+            "redirectUri": authParams.redirectUri,
+            "responseType": authParams.responseType ? authParams.responseType : null,
+            "scope": authParams.scope
         }
     }
 
@@ -117,5 +122,19 @@ module.exports = class Hmac {
                 + "principalIdns=" + q + context.authParams.principalIdns + q
             )
         });
+    }
+
+    getLoginUrl() {
+        const AuthCode = require("./authCode.js");
+        const authCode = new AuthCode({
+            "clientId": this.authParams.clientId,
+            "secret": this.authParams.secret,
+            "authenticatingInstitutionId": this.authParams.authenticatingInstitutionId,
+            "contextInstitutionId": this.authParams.contextInstitutionId,
+            "redirectUri": this.authParams.redirectUri,
+            "responseType": this.authParams.responseType,
+            "scope": this.authParams.scope
+        });
+        return authCode.getLoginUrl()
     }
 };
