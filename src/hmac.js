@@ -119,46 +119,4 @@ module.exports = class Hmac {
         });
     }
 
-    makeHmacRequestCallback(options, cb) {
-
-        let request = require("request");
-
-        this.getAuthorizationHeader(options, function (authorizationHeader) {
-            let requestOptions = {
-                "method": options.method,
-                "body": options.body,
-                "url": options.url,
-                "headers": options.headers
-            };
-            requestOptions.headers.authorization = authorizationHeader;
-
-            request(requestOptions, function (error, response, body) {
-                cb(error, response, body)
-            });
-        });
-    };
-
-    makeHmacRequestPromise(options) {
-
-        let context = this;
-
-        let getAuthorization = new Promise(function (resolve) {
-            context.getAuthorizationHeader(options, function (authorizationHeader) {
-                resolve(authorizationHeader);
-            });
-        });
-
-        let rp = require("request-promise");
-
-        return getAuthorization.then(function (authorizationHeader) {
-            let requestOptions = {
-                "method": options.method,
-                "body": options.body,
-                "url": options.url,
-                "headers": options.headers
-            };
-            requestOptions.headers.authorization = authorizationHeader;
-            return rp(requestOptions);
-        });
-    }
 };
