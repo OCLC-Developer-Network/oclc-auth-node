@@ -36,7 +36,10 @@ console.log(authorizationHeader);
 You will get an authorization header similar to the one below. Because the signature is timestamp dependent, your signature would be different even if all the parameters were the same.
 
 ```
-http://www.worldcat.org/wskey/v2/hmac/v1 clientId="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3", timestamp="1518632079", nonce="a9bebe15", signature="VcK+9RyCHOVRCHxO7J6DzoYDQfkz56d5z4nFBKgtNts=", principalId="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIdns="urn:oclc:wms:da"
+http://www.worldcat.org/wskey/v2/hmac/v1
+clientId="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3",
+timestamp="1518632079", nonce="a9bebe15", signature="VcK+9RyCHOVRCHxO7J6DzoYDQfkz56d5z4nFBKgtNts=",
+principalId="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIdns="urn:oclc:wms:da"
 ```
 
 #### Use the Authorization Header to get a response from the API
@@ -80,7 +83,13 @@ console.log(loginUrl);
 If everything went right, loginUrl would look like this:
 
 ```
-https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=128807&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP
+https://authn.sd00.worldcat.org/oauth2/authorizeCode?
+client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3
+&authenticatingInstitutionId=128807
+&contextInstitutionId=128807
+&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F
+&response_type=code
+&scope=WMS_CIRCULATION%20WMS_NCIP
 ```
 
 You can then use that url to request an Authorization Code, which should look like this:
