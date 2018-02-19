@@ -3,7 +3,7 @@ module.exports = class Hmac {
     constructor(authParams) {
 
         this.authParams = {
-            "wskey": authParams.wskey,
+            "clientId": authParams.clientId,
             "secret": authParams.secret,
             "principalId": authParams.principalId,
             "principalIdns": authParams.principalIdns
@@ -16,7 +16,7 @@ module.exports = class Hmac {
      * method - optional, defaults to GET
      * queryParameters - optional, defaults to ""
      * bodyHash - never include, not implemented
-     * timestamp - never include, for unit testing only
+     * timeStamp - never include, for unit testing only
      * nonce - never include, for unit testing only
      * queryParameters - of the form "", defaults to ""
      * @param options
@@ -39,7 +39,7 @@ module.exports = class Hmac {
 
         let bodyHash = options.bodyHash ? options.bodyHash : "";
 
-        let normalizedRequest = this.authParams.wskey + "\n"
+        let normalizedRequest = this.authParams.clientId + "\n"
             + timeStamp + "\n"
             + nonce + "\n"
             + bodyHash + "\n"
@@ -109,7 +109,7 @@ module.exports = class Hmac {
         }, function (signature) {
             cb(
                 context.getHmacAuthorizationUrl() + " "
-                + "clientId=" + q + context.authParams.wskey + qc
+                + "clientId=" + q + context.authParams.clientId + qc
                 + "timestamp=" + q + signature.timeStamp + qc
                 + "nonce=" + q + signature.nonce + qc
                 + "signature=" + q + signature.signature + qc
@@ -117,24 +117,6 @@ module.exports = class Hmac {
                 + "principalIdns=" + q + context.authParams.principalIdns + q
             )
         });
-    }
-
-    getBaseUrl(url) {
-        let baseUrl = "";
-        if (url.indexOf("https://") !== -1) {
-            //baseUrl = "https://";
-            url = url.replace("https://", "");
-        } else {
-            //baseUrl = "http://";
-            url = url.replace("https://", "");
-        }
-        baseUrl = url.split("/")[0];
-        return baseUrl;
-    }
-
-    getPath(url) {
-        let path = url.replace(this.getBaseUrl(url), "");
-        return path;
     }
 
     makeHmacRequestCallback(options, cb) {
@@ -166,8 +148,9 @@ module.exports = class Hmac {
             });
         });
 
+        let rp = require("request-promise");
+
         return getAuthorization.then(function (authorizationHeader) {
-            let rp = require("request-promise");
             let requestOptions = {
                 "method": options.method,
                 "body": options.body,

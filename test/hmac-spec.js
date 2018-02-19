@@ -3,7 +3,7 @@ const Hmac = require("../src/hmac.js");
 describe("HMAC Hashing", function () {
 
     const hmac = new Hmac({
-        "wskey": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3",
+        "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3",
         "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
         "principalId": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
         "principalIdns": "urn:oclc:wms:da"

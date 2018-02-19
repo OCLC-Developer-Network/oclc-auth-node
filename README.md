@@ -6,167 +6,114 @@ npm install TODO
 
 ## Usage
 
-### Server Side HMAC Authentication
+### HMAC Authentication
 
-You can make server to server requests uses HMAC authentication. HMAC authentication should never be used on the client side (browser or mobile) because doing so would expose the Secret. See Explicit and Mobile authentication flows for those cases.
+You can make server to server requests using an [HMAC Signature](https://www.oclc.org/developer/develop/authentication/hmac-signature.en.html). HMAC authentication is only for server to server requests, and should never be used on the client side (browser or mobile) because doing so would expose the Secret. See Explicit and Mobile authentication flows for those cases.
 
-We offer two ways to make the calls - with a callback and with a promise. Here are examples of GET and POST operations.
-
-#### Example of an HMAC GET request
-
-Here we attempt to get a pull list using the WMS Circulation API.
-
-See [Pull List Resource for WMS Circulation](https://www.oclc.org/developer/develop/web-services/wms-circulation-api/pull-list-resource.en.html) for API details.
-
-##### Callback Style
+#### Get an HMAC Authorization Header
 
 ```
 const Hmac = require("../src/hmac.js");
 
+// Initialize an Hmac object with your authentication Parameters
 const hmac = new Hmac({
-    "wskey": "YOUR CLIENT ID",
-    "secret": "YOUR SECRET",
-    "principalId": "YOUR principal id",
-    "principalIdns": "YOU principal idns"
+    "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3",
+    "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
+    "principalId": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
+    "principalIdns": "urn:oclc:wms:da"
 });
 
-hmac.makeHmacRequestCallback({
+// Get the authorization header for a given URL and Method.
+let authorizationHeader = hmac.getAuthorizationHeader({
     "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
-    "method": "GET",
-    "body": "",
-    "headers": {
-        "accept": "application/json"
-    }
-}, function (error, response, body) {
-    // Do something with the response
-    console.log(body);
-});
-```
-
-##### Promise Style
-
-```
-const Hmac = require("../src/hmac.js");
-
-const hmac = new Hmac({
-    "wskey": "YOUR CLIENT ID",
-    "secret": "YOUR SECRET",
-    "principalId": "YOUR principal id",
-    "principalIdns": "YOU principal idns"
+     "method": "GET"
 });
 
-hmac.makeHmacRequestPromise({
-    "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
-    "method": "GET",
-    "body": "",
-    "headers": {
-        "accept": "application/json"
-    }
-})
-    .then(function (response) {
-        console.log(response);
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
-```
-
-#### Example of a POST request
-
-Here we attempt to do a staff checkin of an item using the WMS NCIP API.
-
-See [WMS NCIP Service Staff Profile](https://www.oclc.org/developer/develop/web-services/wms-ncip-service/staff-profile.en.html) on the OCLC Developer Network for API details.
-
-##### Callback Style
+console.log(authorizationHeader);
 
 ```
-const Hmac = require("../src/hmac.js");
 
-const hmac = new Hmac({
-    "wskey": "YOUR CLIENT ID",
-    "secret": "YOUR SECRET",
-    "principalId": "YOUR principal id",
-    "principalIdns": "YOU principal idns"
+You will get an authorization header similar to the one below. Because the signature is timestamp dependent, your signature would be different even if all the parameters were the same.
+
+```
+http://www.worldcat.org/wskey/v2/hmac/v1 clientId="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOy5H3", timestamp="1518632079", nonce="a9bebe15", signature="VcK+9RyCHOVRCHxO7J6DzoYDQfkz56d5z4nFBKgtNts=", principalId="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIdns="urn:oclc:wms:da"
+```
+
+#### Use the Authorization Header to get a response from the API
+
+Pass the Authorization Header value along as an [Authorization Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization) value when making the GET request to the URL you calculated it against:
+
+```https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1```
+
+### Explicit Authorization Code
+
+You can make client to server requests (ie, from a web browser) using the [Explicit Authorization Code](https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html) pattern.
+
+This is a two step process, first you request an authorization code. The user is redirected to a sign in page, and if they successfully sign in, they are redirected back to your page and an access token is passed along.
+
+#### Get an Authorization Code
+
+```
+const AuthCode = require("../src/authCode.js");
+
+const authCode = new AuthCode({
+    "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
+    "secret" : "eUK5Qz9AdsZQrCPRRliBzQ=="
+    "authenticatingInstitutionId": "128807",
+    "contextInstitutionId": "128807",
+    "redirectUri": "http://localhost/auth/",
+    "responseType": "code",
+    "scope": ["WMS_CIRCULATION", "WMS_NCIP"]
 });
 
-const body='<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
-    '<CheckInItem>\n' +
-    '<InitiationHeader>\n' +
-    '<FromAgencyId>\n' +
-    '<AgencyId ncip:Scheme="http://oclc.org/ncip/schemes/agencyid.scm">129479</AgencyId>\n' +
-    '</FromAgencyId>\n' +
-    '<ToAgencyId>\n' +
-    '<AgencyId>129479</AgencyId>\n' +
-    '</ToAgencyId>\n' +
-    '<ApplicationProfileType ncip:Scheme="http://oclc.org/ncip/schemes/application-profile/platform.scm">Version 2011</ApplicationProfileType>\n' +
-    '</InitiationHeader>\n' +
-    '<ItemId>\n' +
-    '<AgencyId>128807</AgencyId>\n' +
-    '<ItemIdentifierValue>10176</ItemIdentifierValue>\n' +
-    '</ItemId>\n' +
-    '</CheckInItem>\n' +
-    '</NCIPMessage>';
+let loginUrl = authCode.getLoginUrl();
 
-hmac.makeHmacRequestCallback({
-    "url": "https://circ.sd00.worldcat.org/ncip",
-    "method": "POST",
-    "body": body,
-    "headers": {
-        "accept": "application/json"
-    }
-}, function (error, response, body) {
-    // Do something with the response
-    console.log(body);
-});
+if (loginUrl.err) {
+    // The error is not null, so print out the error message
+    console.log(loginUrl.err)
+} else {
+    // No error, use the url
+    console.log("The url is " + loginUrl.url)
+}
 ```
 
-##### Promise Style
+If everything went right, loginUrl would look like this:
 
 ```
-const Hmac = require("../src/hmac.js");
-
-const hmac = new Hmac({
-    "wskey": "YOUR CLIENT ID",
-    "secret": "YOUR SECRET",
-    "principalId": "YOUR principal id",
-    "principalIdns": "YOU principal idns"
-});
-
-const body = '<NCIPMessage xmlns="http://www.niso.org/2008/ncip" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ncip="http://www.niso.org/2008/ncip" xsi:schemaLocation="http://www.niso.org/2008/ncip http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd" ncip:version="http://www.niso.org/schemas/ncip/v2_01/ncip_v2_01.xsd">\n' +
-            '<CheckInItem>\n' +
-            '<InitiationHeader>\n' +
-            '<FromAgencyId>\n' +
-            '<AgencyId ncip:Scheme="http://oclc.org/ncip/schemes/agencyid.scm">129479</AgencyId>\n' +
-            '</FromAgencyId>\n' +
-            '<ToAgencyId>\n' +
-            '<AgencyId>129479</AgencyId>\n' +
-            '</ToAgencyId>\n' +
-            '<ApplicationProfileType ncip:Scheme="http://oclc.org/ncip/schemes/application-profile/platform.scm">Version 2011</ApplicationProfileType>\n' +
-            '</InitiationHeader>\n' +
-            '<ItemId>\n' +
-            '<AgencyId>128807</AgencyId>\n' +
-            '<ItemIdentifierValue>10176</ItemIdentifierValue>\n' +
-            '</ItemId>\n' +
-            '</CheckInItem>\n' +
-            '</NCIPMessage>';
-
-hmac.makeHmacRequestPromise({
-    "url": "https://circ.sd00.worldcat.org/ncip",
-    "method": "POST",
-    "body": body,
-    "headers": {
-        "accept": "application/json"
-    }
-})
-    .then(function (response) {
-        console.log(response);
-    })
-    .catch(function (error) {
-        console.log(error);
-    });
+{url: "https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=128807&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP"
+}
 ```
 
-TODO
+You can then use that url to request an Authorization Code.
+
+#### Get an Access Token
+
+Once you've received an Authorization Code, you can request a Token. A typical Authorization Code would look like this:
+
+```
+https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html
+```
+
+To request the token (using the authCode defined in the previous step):
+
+```
+let tokenRequestUrl = authCode.getTokenRequestUrl();
+
+if (tokenRequestUrl.err) {
+    // The error is not null, so print out the error message
+    console.log(loginUrl.err)
+} else {
+    // No error, use the url
+    console.log("The url is " + tokenRequestUrl.url)
+}
+```
+
+If everything went right, tokenRequestUrl would look like:
+
+```
+
+```
+
 
 ### Access Token with Client Credentials Grant
 
