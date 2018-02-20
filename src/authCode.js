@@ -20,18 +20,12 @@ module.exports = class AuthCode {
         if (typeof this.authParams.contextInstitutionId === "number") {
             this.authParams.contextInstitutionId = this.authParams.contextInstitutionId.toString();
         }
+
+        const Util = require("./util.js");
+        this.util = new Util();
     }
 
-    getLoginUrl() {
-
-        // Build a space separated scope list from the array of scopes
-        let scope = "";
-        for (let i = 0; i < this.authParams.scope.length; i++) {
-            scope += this.authParams.scope[i];
-            if (i !== this.authParams.scope.length - 1) {
-                scope += " ";
-            }
-        }
+    getLoginURL() {
 
         const url = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?" +
             "client_id=" + this.authParams.clientId +
@@ -39,7 +33,7 @@ module.exports = class AuthCode {
             "&contextInstitutionId=" + this.authParams.contextInstitutionId +
             "&redirect_uri=" + encodeURIComponent(this.authParams.redirectUri) +
             "&response_type=" + this.authParams.responseType +
-            "&scope=" + encodeURIComponent(scope);
+            "&scope=" + encodeURIComponent(this.util.normalizeScope(this.authParams.scope));
 
         return url
     }

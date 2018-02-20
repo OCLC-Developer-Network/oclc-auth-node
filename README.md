@@ -12,6 +12,8 @@ You can make server to server requests using an [HMAC Signature](https://www.ocl
 
 #### Get an HMAC Authorization Header
 
+In javascript, an HMAC header must be calculated asynchronously. We use a Promise to do so:
+
 ```
 const Hmac = require("../src/hmac.js");
 
@@ -27,9 +29,17 @@ const hmac = new Hmac({
 let authorizationHeader = hmac.getAuthorizationHeader({
     "url": "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
      "method": "GET"
-});
+})
 
-console.log(authorizationHeader);
+.then(function(authorizationHeader){
+    // Do something with the authorization header
+    console.log(authorizationHeader)
+})
+
+.catch(function(err){
+    // or handle the error
+    console.log(err);
+});
 
 ```
 

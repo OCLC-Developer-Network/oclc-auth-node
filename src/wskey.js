@@ -2,6 +2,10 @@ module.exports = class Wskey {
 
     constructor(authParams) {
 
+        if (!authParams.clientId) {
+            throw "Error creating Wskey - missing clientId";
+        }
+
         this.authParams = {
             "clientId": authParams.clientId,
             "secret": authParams.secret,
@@ -12,7 +16,7 @@ module.exports = class Wskey {
             "redirectUri": authParams.redirectUri,
             "responseType": authParams.responseType ? authParams.responseType : null,
             "scope": authParams.scope
-        }
+        };
     }
 
     /**
@@ -102,7 +106,7 @@ module.exports = class Wskey {
      * @param options
      * @param cb
      */
-    getAuthorizationHeader(options, cb) {
+    getAuthorizationHeaderCallback(options, cb) {
         const q = "\"";
         const qc = "\", ";
         const context = this;
@@ -124,7 +128,21 @@ module.exports = class Wskey {
         });
     }
 
-    getLoginUrl() {
+    /**
+     * Promise form of getAuthorization Header
+     * @param options
+     * @returns {Promise<any>}
+     */
+    getAuthorizationHeader(options) {
+        let context = this;
+        return new Promise(function (resolve, reject) {
+            context.getAuthorizationHeaderCallback(options, function (authorizationHeader) {
+                resolve(authorizationHeader);
+            });
+        });
+    }
+
+    getLoginURL() {
         const AuthCode = require("./authCode.js");
         const authCode = new AuthCode({
             "clientId": this.authParams.clientId,
@@ -135,6 +153,6 @@ module.exports = class Wskey {
             "responseType": this.authParams.responseType,
             "scope": this.authParams.scope
         });
-        return authCode.getLoginUrl()
+        return authCode.getLoginURL()
     }
 };
