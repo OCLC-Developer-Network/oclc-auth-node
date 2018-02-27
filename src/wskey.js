@@ -57,7 +57,7 @@ module.exports = class Wskey {
             + "443" + "\n"
             + "/wskey" + "\n"
             + queryParameters;
-
+        
         hmac.on('readable', () => {
             const hmacHash = hmac.read();
             if (hmacHash) {
@@ -92,7 +92,18 @@ module.exports = class Wskey {
             let paramList = (cleanUrl.split("?")[1]).split("&");
             paramList.sort();
             paramList.forEach(function (param) {
-                queryParameters += param + "\n";
+                let name = param.split("=")[0];
+                let value = param.split("=")[1];
+                // encodeURIComponent fails to encode these characters, which must be encoded
+                // to get a properly generated HMAC signature.
+                if (value) {
+                    value = value.replace(/!/g, "%21")
+                        .replace(/\*/g, "%2A")
+                        .replace(/'/g, "%27")
+                        .replace(/\(/g, "%28")
+                        .replace(/\)/g, "%29");
+                queryParameters += name + "=" + value + "\n";
+                }
             });
             if (queryParameters === "\n") {
                 queryParameters = "";
@@ -116,15 +127,26 @@ module.exports = class Wskey {
             "timeStamp": options.timeStamp,
             "nonce": options.nonce
         }, function (signature) {
-            cb(
-                context.getHmacAuthorizationUrl() + " "
-                + "clientId=" + q + context.authParams.clientId + qc
-                + "timestamp=" + q + signature.timeStamp + qc
-                + "nonce=" + q + signature.nonce + qc
-                + "signature=" + q + signature.signature + qc
-                + "principalId=" + q + context.authParams.principalId + qc
-                + "principalIdns=" + q + context.authParams.principalIdns + q
-            )
+            if (context.authParams.principalId && context.authParams.principalIdns) {
+                cb(
+                    context.getHmacAuthorizationUrl() + " "
+                    + "clientId=" + q + context.authParams.clientId + qc
+                    + "timestamp=" + q + signature.timeStamp + qc
+                    + "nonce=" + q + signature.nonce + qc
+                    + "signature=" + q + signature.signature + qc
+                    + "principalId=" + q + context.authParams.principalId + qc
+                    + "principalIdns=" + q + context.authParams.principalIdns + q
+                )
+            } else {
+                // Principal ID and IDNS are missing for AuthCode hashing
+                cb(
+                    context.getHmacAuthorizationUrl() + " "
+                    + "clientId=" + q + context.authParams.clientId + qc
+                    + "timestamp=" + q + signature.timeStamp + qc
+                    + "nonce=" + q + signature.nonce + qc
+                    + "signature=" + q + signature.signature + q
+                )
+            }
         });
     }
 
@@ -144,15 +166,18 @@ module.exports = class Wskey {
 
     getLoginURL() {
         const AuthCode = require("./authCode.js");
-        const authCode = new AuthCode({
-            "clientId": this.authParams.clientId,
-            "secret": this.authParams.secret,
-            "authenticatingInstitutionId": this.authParams.authenticatingInstitutionId,
-            "contextInstitutionId": this.authParams.contextInstitutionId,
-            "redirectUri": this.authParams.redirectUri,
-            "responseType": this.authParams.responseType,
-            "scope": this.authParams.scope
-        });
+        const authCode = new AuthCode(this);
         return authCode.getLoginURL()
+    }
+
+    createAuthToken(options) {
+        const AccessToken = require("./accessToken.js");
+        const accessToken = new AccessToken({
+            "wskey": this,
+            "refreshToken": null,
+            "grantType": options.grantType,
+            "authorizationCode": options.authorizationCode
+        });
+        return accessToken.createAccessToken();
     }
 };

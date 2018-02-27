@@ -36,7 +36,7 @@ describe("Access Token methods", function () {
         expect(accessToken.buildAccessTokenURL()).toEqual(expectedAccessTokenURL);
     });
 
-    it("should build a authorization_code token access url", function () {
+    it("should build an authorization_code token access url", function () {
 
         const accessToken = new AccessToken({
                 "wskey": wskey,
@@ -68,45 +68,4 @@ describe("Access Token methods", function () {
         expect(accessToken.buildAccessTokenURL()).toEqual(expectedAccessTokenURL);
     });
 
-    it('should request an access token', function (done) {
-
-        const accessToken = new AccessToken({
-            "wskey": wskey,
-            "grantType": "authorization_code",
-            "authorizationCode": "auth_123456"
-        });
-
-        accessToken.createAccessToken().then(function (accessToken) {
-            console.log(accessToken);
-            done();
-        }).catch(function (err) {
-            console.log(err);
-            done();
-        });
-
-    });
-
-    it("should split a url", function () {
-
-        const accessToken = new AccessToken({"wskey": null, "grantType": null});
-
-        const URLhash = "#access_token=tk_K5DqcydfIPeYVMbZJIHBvxTB5ZpXoTHXpMOm&state=undefined" +
-            "&principalID=9073b132-7ac3-40d8-a167-fcd67df7a088&principalIDNS=urn:oclc:platform:128807" +
-            "&context_institution_id=128807&authenticating_institution_id=128807&token_type=bearer" +
-            "&expires_in=1199&expires_at=2017-12-06 20:36:51Z",
-
-            expected = {
-                access_token: 'tk_K5DqcydfIPeYVMbZJIHBvxTB5ZpXoTHXpMOm',
-                state: 'undefined',
-                principalID: '9073b132-7ac3-40d8-a167-fcd67df7a088',
-                principalIDNS: 'urn:oclc:platform:128807',
-                context_institution_id: '128807',
-                authenticating_institution_id: '128807',
-                token_type: 'bearer',
-                expires_in: '1199',
-                expires_at: '2017-12-06 20:36:51Z'
-            };
-
-        expect(accessToken.parseTokenResponse(URLhash)).toEqual(expected);
-    });
 });

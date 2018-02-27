@@ -5,6 +5,17 @@ module.exports = class AccessToken {
         this.refreshToken = options.refreshToken;
         this.grantType = options.grantType;
         this.authorizationCode = options.authorizationCode;
+        this.params = {
+            "accessToken": null,
+            "expiresAt": null,
+            "authenticatingInstitutionId": null,
+            "errorCode": null,
+            "principalId": null,
+            "contextInstitutionId": null,
+            "tokenType": null,
+            "expiresIn": null,
+            "principalIdns": null
+        };
         const Config = require("./config.js");
         this.config = new Config();
     };
@@ -19,9 +30,20 @@ module.exports = class AccessToken {
     createAccessToken() {
         let context = this;
         let accessTokenURL = context.buildAccessTokenURL();
-        return context.requestAccessToken(accessTokenURL).then(function (response) {
-            return context.parseTokenResponse(response);
-        });
+        return context.requestAccessToken(accessTokenURL)
+            .then(function (response) {
+                let jsonResponse = JSON.parse(response);
+                context.params.accessToken = jsonResponse["access_token"];
+                context.params.expiresAt = jsonResponse["expires_at"];
+                context.params.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
+                context.params.errorCode = jsonResponse["error_code"];
+                context.params.principalId = jsonResponse["principalID"];
+                context.params.contextInstitutionId = jsonResponse["context_institution_id"];
+                context.params.tokenType = jsonResponse["token_type"];
+                context.params.expiresIn = jsonResponse["expires_in"];
+                context.params.principalIdns = jsonResponse["principalIDNS"];
+                return context;
+            });
     }
 
     requestAccessToken(accessTokenURL) {
@@ -34,22 +56,20 @@ module.exports = class AccessToken {
             }).then(function (authorization) {
                 const options = {
                     "url": accessTokenURL,
+                    "method": "POST",
                     "headers": {
                         "authorization": authorization
                     }
                 };
                 const rp = require('request-promise-native');
                 return rp(options)
-                    .then(function (err, httpResponse, body) {
-                        console.log("--- success ---");
-                        console.log(httpResponse);
-                        console.log(body);
-                        resolve(body);
+                    .then(function (response, body) {
+                        resolve(response);
                     }).catch(function (err) {
-                        console.log("--- err ---");
-                        console.log(err);
                         reject(err);
                     });
+            }).catch(function (err) {
+                reject(err);
             });
         })
     }
@@ -82,20 +102,4 @@ module.exports = class AccessToken {
         }
         return accessToken;
     }
-
-    parseTokenResponse(URLhash) {
-
-        let hash = URLhash.replace("#", "").split("&"),
-            paramHash = {},
-            paramArray,
-            paramCounter;
-
-        for (paramCounter = 0; paramCounter < hash.length; paramCounter++) {
-            paramArray = hash[paramCounter].split("=");
-            paramHash[paramArray[0]] = paramArray[1];
-        }
-
-        return paramHash;
-    }
-
 };

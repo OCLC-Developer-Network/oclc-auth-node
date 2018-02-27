@@ -1,8 +1,8 @@
-const Wskey = require("../src/wskey.js");
+const WSKey = require("../src/wskey.js");
 
 describe("HMAC Hashing", function () {
 
-    const wskey = new Wskey({
+    const wskey = new WSKey({
         "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
         "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
         "principalId": "wera9f92-3751-4r1c-r78a-d78d13df26b1",

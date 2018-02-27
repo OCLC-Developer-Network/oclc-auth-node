@@ -58,59 +58,119 @@ Pass the Authorization Header value along as an [Authorization Header](https://d
 
 ```https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1```
 
-### Request an Access Token
+## Request an Access Token
 
-TODO
-
-### Request an Authorization Code for Explicit Flow
+### Explicit Flow Example
 
 You can make client to server requests (ie, from a web browser) using the [Explicit Authorization Code](https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html) pattern.
 
 This is a two step process, first you request an authorization code. The user is redirected to a sign in page, and if they successfully sign in, they are redirected back to your page and an access token is passed along.
 
-#### Get an Authorization Code
+In this simple example, we request an authorization code and retrieve an access token.
+
+#### index.html file
+
+The user can press the authenticate button, sign in and get an access token.
 
 ```
-const Wskey = require("../src/wskey.js");
+<html>
+<head>
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
 
-const wskey = new Wskey({
-    "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
-    "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
-    "principalId": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
-    "principalIdns": "urn:oclc:wms:da",
-    "authenticatingInstitutionId":"128807",
-    "contextInstitutionId":"128807",
-    "redirectUri": "http://localhost/auth/",
+<h1>Explicit Authentication Flow Example</h1>
+<a href="/authenticate">
+   <button id="authenticate-button" class="btn btn-primary">Authenticate</button>
+</a>
+<pre id="token"></pre>
+
+<script>
+    // Display the token parameters, if one has been requested
+    $.ajax({
+        "url": "/token",
+    }).done(function (result) {
+        if (result !== "") {
+            let resultJson = JSON.parse(result);
+            $("#token").html(JSON.stringify(resultJson, null, 4));
+        } else {
+            $("#token").html("Press Authenticate to obtain an authorization token.");
+        }
+    });
+</script>
+</body>
+</html>
+```
+
+#### nodeJS server file
+
+create a node project, install express, path and this library, and then start the server (node server).
+
+```
+const express = require("express");
+const path = require("path");
+const Wskey = require("nodeauth/src/Wskey");
+
+var wskey = new Wskey({
+    "clientId": "bCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygG0U1KJZoeAittuVjGRywCDdrsxahv2bsjtKq6hLM",
+    "secret": "UyZfIJdG4XlatxQOjdkQZw==",
+    "authenticatingInstitutionId": "128807",
+    "contextInstitutionId": "128807",
+    "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
-    "scope": ["WMS_CIRCULATION", "WMS_NCIP"]
+    "scope": ["WMS_CIRCULATION"]
 });
 
-let loginUrl = wskey.getLoginUrl();
+// Initialize a server listening to http://localhost:8000
+const app = express();
+const port = 8000;
+app.listen(port, function () {
+    console.log("server listening on port " + port);
+});
 
-console.log(loginUrl);
+// Handle the main page
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname + "/index.html"));
+});
+
+// Handle an authentication request be redirecting to login url
+app.get("/authenticate", function (req, res) {
+    res.send('<html>' +
+        '<head>' +
+        '<meta http-equiv="refresh" content="0; url=' + wskey.getLoginURL() + '" />' +
+        '</head>' +
+        '</html>');
+});
+
+// Return the token information
+app.get("/token", function (req, res, next) {
+    console.log("Token request received");
+    if (this.authToken) {
+        res.send(JSON.stringify(this.authToken.params));
+    } else {
+        res.send();
+    }
+});
+
+// Handle the redirect page
+app.get("/auth/", function (req, res) {
+    let context = this;
+    const redirectHtml = "<html><head>" +
+        "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
+        "</head></html>";
+    wskey.createAuthToken({"authorizationCode": req.query.code, "grantType": "authorization_code"})
+        .then(
+            function (authToken) {
+                context.authToken = authToken;
+                res.send(redirectHtml);
+            })
+        .catch(
+            function (err) {
+                console.log(err.message);
+                res.send(redirectHtml);
+            });
+});
 ```
-
-If everything went right, loginUrl would look like this:
-
-```
-https://authn.sd00.worldcat.org/oauth2/authorizeCode?
-client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3
-&authenticatingInstitutionId=128807
-&contextInstitutionId=128807
-&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F
-&response_type=code
-&scope=WMS_CIRCULATION%20WMS_NCIP
-```
-
-You can then use that url to request an Authorization Code, which should look like this:
-
-```
-https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html
-```
-
-#### Get an Access Token
-
-Once you've received an Authorization Code, you can request a Token.
 
 ## Clone and Test this Library
 
