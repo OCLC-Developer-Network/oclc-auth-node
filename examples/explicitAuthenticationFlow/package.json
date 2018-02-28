@@ -10,6 +10,6 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.16.2",
-    "nodeauth": "file:../../../nodeAuth"
+    "nodeauth": "file:../../../oclc-auth-node"
   }
 }
