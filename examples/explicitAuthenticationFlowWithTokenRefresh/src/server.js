@@ -9,7 +9,7 @@ var wskey = new Wskey({
     "contextInstitutionId": "{your institution ID}",
     "redirectUri": "http://localhost:8000/auth/", // example catches this path - YMMMV
     "responseType": "code",
-    "scope": ["{scope 1}","{scope 2}","..."]
+    "scope": ["refresh_token","{scope 1}","{scope 2}","..."]
 });
 
 // Initialize a server listening to http://localhost:8000
@@ -50,6 +50,27 @@ app.get("/auth/", function (req, res) {
     wskey.createAuthToken({"authorizationCode": req.query.code, "grantType": "authorization_code"})
         .then(
             // Success - set the authToken internally to this server and return to the main app
+            function (authToken) {
+                context.authToken = authToken;
+                res.send(redirectHtml);
+            })
+        .catch(
+            // Failure - no authToken set and return to the main app
+            function (err) {
+                console.log(err.message);
+                res.send(redirectHtml);
+            });
+});
+
+app.get("/refresh", function (req, res) {
+    let context = this;
+
+    const redirectHtml = "<html><head>" +
+        "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
+        "</head></html>";
+
+    wskey.refresh()
+        .then(
             function (authToken) {
                 context.authToken = authToken;
                 res.send(redirectHtml);

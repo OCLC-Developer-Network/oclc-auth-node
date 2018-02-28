@@ -4,13 +4,19 @@
 </head>
 <body>
 
-<h1>Explicit Authentication Flow Example</h1>
-<a href="/authenticate">
-   <button id="authenticate-button">Authenticate</button>
+<h1>Explicit Authentication Flow With Refresh Token Example</h1>
+
+<a href="/authenticate" id="request-token">
+   <button>Request Token</button>
+</a>
+<a href="/refresh" id="request-refresh-token">
+   <button>Request Refresh Token</button>
 </a>
 <pre id="token"></pre>
 
 <script>
+   $("#request-refresh-token").hide();
+
     // Display the token parameters, if one has been requested
     $.ajax({
         "url": "/token",
@@ -18,6 +24,8 @@
         if (result !== "") {
             let resultJson = JSON.parse(result);
             $("#token").html(JSON.stringify(resultJson, null, 4));
+            $("#request-refresh-token").show();
+            $("#request-token").hide();
         } else {
             $("#token").html("Press Authenticate to obtain an authorization token.");
         }

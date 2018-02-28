@@ -1,8 +1,8 @@
-# Explicit Authorization Flow example
+# Client Credentials Grant
 
-Explicit Authorization Flow requires a user to sign into OCLC in order to receive an Access Token.
+Client Credentials Grant flow *does not* require a user to sign into OCLC in order to receive an Access Token. This flow assumes the client has already validated the user.
 
-See [Explicit Authorization Code](https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html) at the OCLC Developer Network for more details.
+See [Client Credentials Grant](https://www.oclc.org/developer/develop/authentication/access-tokens/client-credentials-grant.en.html) at the OCLC Developer Network for more details.
 
 ## Usage
 
@@ -15,7 +15,7 @@ cd oclc-auth-node
 
 npm install
 
-cd examples/explicitAuthenticationFlow
+cd examples/clientCredentialsGrant
 
 npm install
 
@@ -38,4 +38,3 @@ save the file
 node server
 ```
 navigate to localhost:8000
-

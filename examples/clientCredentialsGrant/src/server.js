@@ -24,30 +24,15 @@ app.get("/", function (req, res) {
     res.sendFile(path.join(__dirname + "/index.html"));
 });
 
-// Start an authentication request by redirecting to the login url
-app.get("/authenticate", function (req, res) {
-    res.send('<html>' +
-        '<head>' +
-        '<meta http-equiv="refresh" content="0; url=' + wskey.getLoginURL() + '" />' +
-        '</head>' +
-        '</html>');
-});
-
-// This handles the redirect. For this example, we assume the redirect uri is http://localhost:8000/auth.
-// 1. Pick off the authorization code after the user authenticates
-// 2. Use the authorization code to request an access token
-// 3. Redirect the browser back to the main application
-app.get("/auth/", function (req, res) {
-    let context = this;
-
+// Request a token
+app.get("/request-token", function (req, res) {
     const redirectHtml = "<html><head>" +
         "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
         "</head></html>";
 
-    // The authorization code is part of the request to the redirect page (/auth) and can be picked
-    // directly off the request as res.query.code.
+    const context = this;
 
-    wskey.createAuthToken({"authorizationCode": req.query.code, "grantType": "authorization_code"})
+    wskey.createAuthToken({"grantType": "client_credentials"})
         .then(
             // Success - set the authToken internally to this server and return to the main app
             function (authToken) {
@@ -60,6 +45,19 @@ app.get("/auth/", function (req, res) {
                 console.log(err.message);
                 res.send(redirectHtml);
             });
+});
+
+// This handles the redirect. For this example, we assume the redirect uri is http://localhost:8000/auth.
+// 1. Pick off the authorization code after the user authenticates
+// 2. Use the authorization code to request an access token
+// 3. Redirect the browser back to the main application
+app.get("/auth/", function (req, res) {
+
+    const redirectHtml = "<html><head>" +
+        "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
+        "</head></html>";
+
+    res.send(redirectHtml);
 });
 
 // GET's made to the /token path will return the token information for display, or empty string if

@@ -144,7 +144,6 @@ app.get("/authenticate", function (req, res) {
 
 // Return the token information
 app.get("/token", function (req, res, next) {
-    console.log("Token request received");
     if (this.authToken) {
         res.send(JSON.stringify(this.authToken.params));
     } else {

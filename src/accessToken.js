@@ -1,6 +1,8 @@
 module.exports = class AccessToken {
 
     constructor(options) {
+        this.RefreshToken = require("./refreshToken.js");
+
         this.wskey = options.wskey;
         this.refreshToken = options.refreshToken;
         this.grantType = options.grantType;
@@ -14,7 +16,8 @@ module.exports = class AccessToken {
             "contextInstitutionId": null,
             "tokenType": null,
             "expiresIn": null,
-            "principalIdns": null
+            "principalIdns": null,
+            "refreshToken": {}
         };
         const Config = require("./config.js");
         this.config = new Config();
@@ -25,10 +28,39 @@ module.exports = class AccessToken {
     }
 
     refresh() {
+        const context = this;
+
+        let refreshedAccessToken = new AccessToken({
+            wskey: context.wskey,
+            refreshToken: context.params.refreshToken,
+            grantType: "refresh_token",
+        });
+        let accessTokenURL = refreshedAccessToken.buildAccessTokenURL();
+        return refreshedAccessToken.requestAccessToken(accessTokenURL)
+            .then(function (response) {
+                let jsonResponse = JSON.parse(response);
+                refreshedAccessToken.params.accessToken = jsonResponse["access_token"];
+                refreshedAccessToken.params.expiresAt = jsonResponse["expires_at"];
+                refreshedAccessToken.params.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
+                refreshedAccessToken.params.errorCode = jsonResponse["error_code"];
+                refreshedAccessToken.params.principalId = jsonResponse["principalID"];
+                refreshedAccessToken.params.contextInstitutionId = jsonResponse["context_institution_id"];
+                refreshedAccessToken.params.tokenType = jsonResponse["token_type"];
+                refreshedAccessToken.params.expiresIn = jsonResponse["expires_in"];
+                refreshedAccessToken.params.principalIdns = jsonResponse["principalIDNS"];
+                if (jsonResponse["refresh_token"]) {
+                    refreshedAccessToken.params.refreshToken = new context.RefreshToken({
+                        refreshToken: jsonResponse["refresh_token"],
+                        expiresIn: jsonResponse["refresh_token_expires_in"],
+                        expiresAt: jsonResponse["refresh_token_expires_at"]
+                    })
+                }
+                return refreshedAccessToken;
+            });
     }
 
     createAccessToken() {
-        let context = this;
+        const context = this;
         let accessTokenURL = context.buildAccessTokenURL();
         return context.requestAccessToken(accessTokenURL)
             .then(function (response) {
@@ -42,6 +74,13 @@ module.exports = class AccessToken {
                 context.params.tokenType = jsonResponse["token_type"];
                 context.params.expiresIn = jsonResponse["expires_in"];
                 context.params.principalIdns = jsonResponse["principalIDNS"];
+                if (jsonResponse["refresh_token"]) {
+                    context.params.refreshToken = new context.RefreshToken({
+                        refreshToken: jsonResponse["refresh_token"],
+                        expiresIn: jsonResponse["refresh_token_expires_in"],
+                        expiresAt: jsonResponse["refresh_token_expires_at"]
+                    })
+                }
                 return context;
             });
     }

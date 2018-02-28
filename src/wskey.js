@@ -172,12 +172,15 @@ module.exports = class Wskey {
 
     createAuthToken(options) {
         const AccessToken = require("./accessToken.js");
-        const accessToken = new AccessToken({
+        this.accessToken = new AccessToken({
             "wskey": this,
-            "refreshToken": null,
             "grantType": options.grantType,
             "authorizationCode": options.authorizationCode
         });
-        return accessToken.createAccessToken();
+        return this.accessToken.createAccessToken();
+    }
+
+    refresh() {
+        return this.accessToken.refresh();
     }
 };

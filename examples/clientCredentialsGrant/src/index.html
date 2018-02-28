@@ -4,11 +4,12 @@
 </head>
 <body>
 
-<h1>Explicit Authentication Flow Example</h1>
-<a href="/authenticate">
-   <button id="authenticate-button">Authenticate</button>
+<h1>Client Credential Grant Example</h1>
+<a href="/request-token">
+   <button>Request Token</button>
 </a>
 <pre id="token"></pre>
+
 
 <script>
     // Display the token parameters, if one has been requested
@@ -19,7 +20,7 @@
             let resultJson = JSON.parse(result);
             $("#token").html(JSON.stringify(resultJson, null, 4));
         } else {
-            $("#token").html("Press Authenticate to obtain an authorization token.");
+            $("#token").html("Press button to request a token.");
         }
     });
 </script>

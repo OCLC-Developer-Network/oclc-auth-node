@@ -1,7 +1,7 @@
 {
-  "name": "explicitAuthorizationFlow",
+  "name": "explicitAuthorizationFlowWithRefreshToken",
   "version": "1.0.0",
-  "description": "Demonstrate Explicit Authorization Flow using the OCLC Node Authorization Library",
+  "description": "Demonstrate Explicit Authorization Flow with a Refresh Token using the OCLC Node Authorization Library",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
