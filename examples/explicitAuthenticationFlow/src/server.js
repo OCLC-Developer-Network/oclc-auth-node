@@ -1,15 +1,30 @@
+/**
+ * Explicit Authorization Flow example - node server code
+ * @type {*|createApplication}
+ */
+
 const express = require("express");
 const path = require("path");
 const Wskey = require("nodeauth/src/Wskey");
+const AccessToken = require("nodeauth/src/accessToken");
+const User = require("nodeauth/src/user");
 
-var wskey = new Wskey({
+const wskey = new Wskey({
     "clientId": "{your clientId}",
     "secret": "{your secret}",
-    "authenticatingInstitutionId": "{your institution ID}",
     "contextInstitutionId": "{your institution ID}",
-    "redirectUri": "http://localhost:8000/auth/", // example catches this path - YMMMV
+    "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
     "scope": ["{scope 1}","{scope 2}","..."]
+});
+
+let accessToken;
+
+// Omit principalId & Idns for this flow - they are shown only for clarity
+let user = new User({
+    "principalId": null,
+    "principalIdns": null,
+    "authenticatingInstitutionId": "{your institution ID}"
 });
 
 // Initialize a server listening to http://localhost:8000
@@ -28,7 +43,7 @@ app.get("/", function (req, res) {
 app.get("/authenticate", function (req, res) {
     res.send('<html>' +
         '<head>' +
-        '<meta http-equiv="refresh" content="0; url=' + wskey.getLoginURL() + '" />' +
+        '<meta http-equiv="refresh" content="0; url=' + wskey.getLoginURL({user: user}) + '" />' +
         '</head>' +
         '</html>');
 });
@@ -38,7 +53,6 @@ app.get("/authenticate", function (req, res) {
 // 2. Use the authorization code to request an access token
 // 3. Redirect the browser back to the main application
 app.get("/auth/", function (req, res) {
-    let context = this;
 
     const redirectHtml = "<html><head>" +
         "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
@@ -47,15 +61,21 @@ app.get("/auth/", function (req, res) {
     // The authorization code is part of the request to the redirect page (/auth) and can be picked
     // directly off the request as res.query.code.
 
-    wskey.createAuthToken({"authorizationCode": req.query.code, "grantType": "authorization_code"})
+    accessToken = new AccessToken({
+        wskey: wskey,
+        authorizationCode: req.query.code,
+        user: user,
+        grantType: "authorization_code"
+    });
+
+    accessToken.createAccessToken()
         .then(
-            // Success - set the authToken internally to this server and return to the main app
-            function (authToken) {
-                context.authToken = authToken;
+            // Success - accessToken now has authentication parameters
+            function () {
                 res.send(redirectHtml);
             })
         .catch(
-            // Failure - no authToken set and return to the main app
+            // Failure - accessToken does has null authentication parameters
             function (err) {
                 console.log(err.message);
                 res.send(redirectHtml);
@@ -65,9 +85,20 @@ app.get("/auth/", function (req, res) {
 // GET's made to the /token path will return the token information for display, or empty string if
 // no token has been requested yet. This is called when the app is first displayed.
 app.get("/token", function (req, res, next) {
-    if (this.authToken) {
-        res.send(JSON.stringify(this.authToken.params));
+    if (accessToken) {
+        res.send(JSON.stringify(accessToken.params));
     } else {
         res.send();
+    }
+});        res.send();
+    }
+});        res.send();
+    }
+});        res.send();
+    }
+}); }
+});        res.send();
+    }
+});        res.send();
     }
 });

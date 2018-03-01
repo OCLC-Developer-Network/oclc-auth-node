@@ -2,7 +2,8 @@ module.exports = class AccessToken {
 
     constructor(options) {
         this.RefreshToken = require("./refreshToken.js");
-
+        this.User = require("./user.js");
+        this.user = options.user ? options.user : new this.User();
         this.wskey = options.wskey;
         this.refreshToken = options.refreshToken;
         this.grantType = options.grantType;
@@ -10,14 +11,12 @@ module.exports = class AccessToken {
         this.params = {
             "accessToken": null,
             "expiresAt": null,
-            "authenticatingInstitutionId": null,
             "errorCode": null,
-            "principalId": null,
             "contextInstitutionId": null,
             "tokenType": null,
             "expiresIn": null,
-            "principalIdns": null,
-            "refreshToken": {}
+            "refreshToken": {},
+            "user": new this.User()
         };
         const Config = require("./config.js");
         this.config = new Config();
@@ -30,32 +29,32 @@ module.exports = class AccessToken {
     refresh() {
         const context = this;
 
-        let refreshedAccessToken = new AccessToken({
-            wskey: context.wskey,
-            refreshToken: context.params.refreshToken,
+        let newAccessToken = new AccessToken({
+            wskey: this.wskey,
+            refreshToken: this.params.refreshToken,
             grantType: "refresh_token",
         });
-        let accessTokenURL = refreshedAccessToken.buildAccessTokenURL();
-        return refreshedAccessToken.requestAccessToken(accessTokenURL)
+        const accessTokenURL = newAccessToken.buildAccessTokenURL();
+        return newAccessToken.requestAccessToken(accessTokenURL)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
-                refreshedAccessToken.params.accessToken = jsonResponse["access_token"];
-                refreshedAccessToken.params.expiresAt = jsonResponse["expires_at"];
-                refreshedAccessToken.params.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
-                refreshedAccessToken.params.errorCode = jsonResponse["error_code"];
-                refreshedAccessToken.params.principalId = jsonResponse["principalID"];
-                refreshedAccessToken.params.contextInstitutionId = jsonResponse["context_institution_id"];
-                refreshedAccessToken.params.tokenType = jsonResponse["token_type"];
-                refreshedAccessToken.params.expiresIn = jsonResponse["expires_in"];
-                refreshedAccessToken.params.principalIdns = jsonResponse["principalIDNS"];
+                newAccessToken.params.accessToken = jsonResponse["access_token"];
+                newAccessToken.params.expiresAt = jsonResponse["expires_at"];
+                newAccessToken.params.errorCode = jsonResponse["error_code"];
+                newAccessToken.params.contextInstitutionId = jsonResponse["context_institution_id"];
+                newAccessToken.params.tokenType = jsonResponse["token_type"];
+                newAccessToken.params.expiresIn = jsonResponse["expires_in"];
+                newAccessToken.params.user.principalId = jsonResponse["principalID"];
+                newAccessToken.params.user.principalIdns = jsonResponse["principalIDNS"];
+                newAccessToken.params.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
-                    refreshedAccessToken.params.refreshToken = new context.RefreshToken({
+                    newAccessToken.params.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
                         expiresIn: jsonResponse["refresh_token_expires_in"],
                         expiresAt: jsonResponse["refresh_token_expires_at"]
                     })
                 }
-                return refreshedAccessToken;
+                return newAccessToken;
             });
     }
 
@@ -67,13 +66,13 @@ module.exports = class AccessToken {
                 let jsonResponse = JSON.parse(response);
                 context.params.accessToken = jsonResponse["access_token"];
                 context.params.expiresAt = jsonResponse["expires_at"];
-                context.params.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
                 context.params.errorCode = jsonResponse["error_code"];
-                context.params.principalId = jsonResponse["principalID"];
                 context.params.contextInstitutionId = jsonResponse["context_institution_id"];
                 context.params.tokenType = jsonResponse["token_type"];
                 context.params.expiresIn = jsonResponse["expires_in"];
-                context.params.principalIdns = jsonResponse["principalIDNS"];
+                context.params.user.principalId = jsonResponse["principalID"];
+                context.params.user.principalIdns = jsonResponse["principalIDNS"];
+                context.params.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
                     context.params.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
@@ -81,7 +80,6 @@ module.exports = class AccessToken {
                         expiresAt: jsonResponse["refresh_token_expires_at"]
                     })
                 }
-                return context;
             });
     }
 
@@ -90,8 +88,9 @@ module.exports = class AccessToken {
 
         return new Promise(function (resolve, reject) {
             return context.wskey.getAuthorizationHeader({
-                "method": "POST",
-                "url": accessTokenURL,
+                method: "POST",
+                url: accessTokenURL,
+                user: context.user
             }).then(function (authorization) {
                 const options = {
                     "url": accessTokenURL,
@@ -115,6 +114,7 @@ module.exports = class AccessToken {
 
     buildAccessTokenURL() {
 
+        const context = this;
         const Util = require("./util.js");
         let util = new Util();
 
@@ -126,15 +126,16 @@ module.exports = class AccessToken {
                 break;
             case "authorization_code":
                 accessToken += "&code=" + this.authorizationCode
-                    + "&authenticatingInstitutionId=" + this.wskey.authParams.authenticatingInstitutionId
+                    + "&authenticatingInstitutionId=" + context.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
                     + "&redirect_uri=" + encodeURIComponent(this.wskey.authParams.redirectUri);
                 break;
             case "client_credentials":
                 accessToken +=
-                    "&authenticatingInstitutionId=" + this.wskey.authParams.authenticatingInstitutionId
+                    "&authenticatingInstitutionId=" + context.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
                     + "&scope=" + encodeURIComponent(util.normalizeScope(this.wskey.authParams.scope));
+                console.log(accessToken);
                 break;
             default:
                 accessToken = null;

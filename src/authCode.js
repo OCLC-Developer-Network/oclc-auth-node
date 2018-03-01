@@ -7,11 +7,11 @@ module.exports = class AuthCode {
         this.util = new Util();
     }
 
-    getLoginURL() {
+    getLoginURL(options) {
 
         const url = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?" +
             "client_id=" + this.wskey.authParams.clientId +
-            "&authenticatingInstitutionId=" + this.wskey.authParams.authenticatingInstitutionId +
+            "&authenticatingInstitutionId=" + options.user.authenticatingInstitutionId +
             "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId +
             "&redirect_uri=" + encodeURIComponent(this.wskey.authParams.redirectUri) +
             "&response_type=" + this.wskey.authParams.responseType +
