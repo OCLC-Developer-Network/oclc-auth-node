@@ -86,8 +86,4 @@ app.get("/token", function (req, res, next) {
     } else {
         res.send();
     }
-});        res.send();
-    }
-});        res.send();
-    }
 });

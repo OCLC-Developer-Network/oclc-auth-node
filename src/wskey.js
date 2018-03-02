@@ -91,14 +91,18 @@ module.exports = class Wskey {
             paramList.forEach(function (param) {
                 let name = param.split("=")[0];
                 let value = param.split("=")[1];
-                // encodeURIComponent fails to encode these characters, which must be encoded
-                // to get a properly generated HMAC signature.
+
                 if (value) {
+                    value = encodeURIComponent(value);
+
+                    // encodeURIComponent fails to encode these characters, which must be manually encoded
+                    // to get a properly generated HMAC signature.
                     value = value.replace(/!/g, "%21")
                         .replace(/\*/g, "%2A")
                         .replace(/'/g, "%27")
                         .replace(/\(/g, "%28")
                         .replace(/\)/g, "%29");
+
                     queryParameters += name + "=" + value + "\n";
                 }
             });

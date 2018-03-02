@@ -1,0 +1,15 @@
+{
+  "name": "explicitFlowAutomatic",
+  "version": "1.0.0",
+  "description": "Demonstrate Automatic Explicit Authorization Flow using the OCLC Node Authorization Library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "campbelg@oclc.org",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.2",
+    "nodeauth": "file:../../../oclc-auth-node"
+  }
+}

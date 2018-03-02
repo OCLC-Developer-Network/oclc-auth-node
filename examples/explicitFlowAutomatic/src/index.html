@@ -1,0 +1,61 @@
+<html>
+<head>
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<style>#expiration-timer {
+   color: red
+}</style>
+<body>
+
+<h1>Automatic Explicit Authentication Flow Example</h1>
+<p>Request a token.</p>
+<ul>
+   <li>If the token is valid, pressing authenticate does nothing.</li>
+   <li>If the token is expired, pressing authenticate refreshes the token.
+      <span id="#expiration-timer">expires in </span>
+   </li>
+</ul>
+<a id="authenticate" href="#">
+   <button>Authenticate</button>
+</a>
+<pre id="token">Press Authenticate to obtain an authorization token.</pre>
+
+<script>
+    // Initialization
+    $("#expiration-timer").hide();
+
+    // Handle the authenticate button
+    $("#authenticate").on("click", function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: "http://localhost:8000/?authorize=true",
+            method: "GET"
+        })
+            .done(function (accessToken) {
+                if (!accessToken.accessToken) {
+                    window.location.href = accessToken.loginUrl;
+                } else {
+                    console.log(accessToken);
+                    displayToken(accessToken);
+                    startExpirationTimer(accessToken);
+                }
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+                console.log(textStatus);
+                console.log(errorThrown);
+            })
+    });
+
+    function displayToken(accessToken) {
+        console.log("displayToken");
+        $("#token").html(JSON.stringify(accessToken, null, 4));
+    }
+
+    function startExpirationTimer(accessToken) {
+        console.log("startExpirationTimer");
+        $("#expiration-time").show();
+    }
+</script>
+</body>
+</html>

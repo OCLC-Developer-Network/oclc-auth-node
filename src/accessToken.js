@@ -3,11 +3,11 @@ module.exports = class AccessToken {
     constructor(options) {
         this.RefreshToken = require("./refreshToken.js");
         this.User = require("./user.js");
-        this.user = options.user ? options.user : new this.User();
-        this.wskey = options.wskey;
-        this.refreshToken = options.refreshToken;
-        this.grantType = options.grantType;
-        this.authorizationCode = options.authorizationCode;
+
+        this.wskey = options ? options.wskey : null;
+        this.refreshToken = options ? options.refreshToken : null;
+        this.grantType = options ? options.grantType : null;
+        this.authorizationCode = options ? options.authorizationCode : null;
         this.params = {
             "accessToken": null,
             "expiresAt": null,
@@ -16,14 +16,38 @@ module.exports = class AccessToken {
             "tokenType": null,
             "expiresIn": null,
             "refreshToken": {},
-            "user": new this.User()
+            "user": options && options.user ? options.user : new this.User(),
+            "loginUrl":null
         };
         const Config = require("./config.js");
         this.config = new Config();
     };
 
-    getAccessToken() {
+    getUser() {
+        return this.params.user;
+    }
 
+    isExpired() {
+        if (this.params.expiresAt) {
+            return new Date(this.params.expiresAt) - new Date() <= 0;
+        }
+        return true;
+    }
+
+    getAccessToken(/*options*/) {
+        let context = this;
+
+        if (context.isExpired()) {
+            if (context.params.refreshToken.refreshToken) {
+                return context.refresh();
+            } else {
+                return context.createAccessToken();
+            }
+        } else {
+            return new Promise(function (resolve) {
+                resolve(context);
+            })
+        }
     }
 
     refresh() {
@@ -80,6 +104,7 @@ module.exports = class AccessToken {
                         expiresAt: jsonResponse["refresh_token_expires_at"]
                     })
                 }
+                return context;
             });
     }
 
@@ -90,7 +115,7 @@ module.exports = class AccessToken {
             return context.wskey.getAuthorizationHeader({
                 method: "POST",
                 url: accessTokenURL,
-                user: context.user
+                user: context.params.user
             }).then(function (authorization) {
                 const options = {
                     "url": accessTokenURL,
@@ -114,7 +139,6 @@ module.exports = class AccessToken {
 
     buildAccessTokenURL() {
 
-        const context = this;
         const Util = require("./util.js");
         let util = new Util();
 
@@ -126,16 +150,15 @@ module.exports = class AccessToken {
                 break;
             case "authorization_code":
                 accessToken += "&code=" + this.authorizationCode
-                    + "&authenticatingInstitutionId=" + context.user.authenticatingInstitutionId
+                    + "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
-                    + "&redirect_uri=" + encodeURIComponent(this.wskey.authParams.redirectUri);
+                    + "&redirect_uri=" + this.wskey.authParams.redirectUri;
                 break;
             case "client_credentials":
                 accessToken +=
-                    "&authenticatingInstitutionId=" + context.user.authenticatingInstitutionId
+                    "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
-                    + "&scope=" + encodeURIComponent(util.normalizeScope(this.wskey.authParams.scope));
-                console.log(accessToken);
+                    + "&scope=" + util.normalizeScope(this.wskey.authParams.scope);
                 break;
             default:
                 accessToken = null;

@@ -112,30 +112,4 @@ app.get("/token", function (req, res, next) {
     } else {
         res.send();
     }
-});JSON.stringify(accessToken.params));
-    } else {
-        res.send();
-    }
-});cessToken.params));
-    } else {
-        res.send();
-    }
-});send();
-    }
-});cessToken.params));
-    } else {
-        res.send();
-    }
-});send();
-    }
-});cessToken.params));
-    } else {
-        res.send();
-    }
-});send();
-    }
-});cessToken.params));
-    } else {
-        res.send();
-    }
 });

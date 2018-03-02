@@ -61,19 +61,20 @@ app.get("/auth/", function (req, res) {
     // The authorization code is part of the request to the redirect page (/auth) and can be picked
     // directly off the request as res.query.code.
 
-    accessToken = new AccessToken({
-        wskey: wskey,
-        authorizationCode: req.query.code,
-        user: user,
-        grantType: "authorization_code"
-    });
-
-    accessToken.createAccessToken()
+    accessToken.getAccessToken(
+        {
+            wskey: wskey,
+            authorizationCode: req.query.code,
+            user: user,
+            grantType: "authorization_code"
+        }
+    )
         .then(
             // Success - accessToken now has authentication parameters
             function () {
                 res.send(redirectHtml);
             })
+
         .catch(
             // Failure - accessToken does has null authentication parameters
             function (err) {
@@ -89,16 +90,5 @@ app.get("/token", function (req, res, next) {
         res.send(JSON.stringify(accessToken.params));
     } else {
         res.send();
-    }
-});        res.send();
-    }
-});        res.send();
-    }
-});        res.send();
-    }
-}); }
-});        res.send();
-    }
-});        res.send();
     }
 });
