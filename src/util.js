@@ -1,14 +1,11 @@
 module.exports = class Util {
 
-    constructor() {
-    }
-
     /**
      *
      * @param scope Array of one or more strings
      * @returns {string}
      */
-    normalizeScope(scope) {
+    static normalizeScope(scope) {
         // Build a space separated scope list from an array of scopes.
         let normalizedScope = "";
         if (scope && Array.isArray(scope)) {

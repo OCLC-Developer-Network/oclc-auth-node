@@ -1,21 +1,26 @@
 module.exports = class AuthCode {
 
-    constructor(wskey) {
+    static getLoginURL(options) {
 
-        this.wskey = wskey;
         const Util = require("./util.js");
-        this.util = new Util();
-    }
+        const scope = options.wskey.authParams.scope;
 
-    getLoginURL(options) {
+        if (options.useRefreshTokens) {
+            scope.push("refresh_token");
+        }
 
-        const url = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?" +
-            "client_id=" + this.wskey.authParams.clientId +
+        console.log("scope:");
+        console.log(scope);
+
+        let url = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?" +
+            "client_id=" + options.wskey.authParams.clientId +
             "&authenticatingInstitutionId=" + options.user.authenticatingInstitutionId +
-            "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId +
-            "&redirect_uri=" + encodeURIComponent(this.wskey.authParams.redirectUri) +
-            "&response_type=" + this.wskey.authParams.responseType +
-            "&scope=" + encodeURIComponent(this.util.normalizeScope(this.wskey.authParams.scope));
+            "&contextInstitutionId=" + options.wskey.authParams.contextInstitutionId +
+            "&redirect_uri=" + encodeURIComponent(options.wskey.authParams.redirectUri) +
+            "&response_type=" + options.wskey.authParams.responseType +
+            "&scope=" + encodeURIComponent(Util.normalizeScope(scope));
+
+        console.log(url);
 
         return url
     }

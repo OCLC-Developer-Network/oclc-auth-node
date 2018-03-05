@@ -164,10 +164,4 @@ module.exports = class Wskey {
             });
         });
     }
-
-    getLoginURL(options) {
-        const AuthCode = require("./authCode.js");
-        const authCode = new AuthCode(this);
-        return authCode.getLoginURL(options)
-    }
 };

@@ -8,6 +8,7 @@ module.exports = class AccessToken {
         this.refreshToken = options ? options.refreshToken : null;
         this.grantType = options ? options.grantType : null;
         this.authorizationCode = options ? options.authorizationCode : null;
+        this.useRefreshTokens = options ? options.useRefreshTokens : false;
         this.params = {
             "accessToken": null,
             "expiresAt": null,
@@ -17,7 +18,7 @@ module.exports = class AccessToken {
             "expiresIn": null,
             "refreshToken": {},
             "user": options && options.user ? options.user : new this.User(),
-            "loginUrl":null
+            "loginUrl": null
         };
         const Config = require("./config.js");
         this.config = new Config();
@@ -27,6 +28,18 @@ module.exports = class AccessToken {
         return this.params.user;
     }
 
+    getGrantType() {
+        return this.grantType;
+    }
+
+    getValue() {
+        return this.params.accessToken;
+    }
+
+    setAuthorizationCode(code) {
+        this.authorizationCode = code;
+    }
+
     isExpired() {
         if (this.params.expiresAt) {
             return new Date(this.params.expiresAt) - new Date() <= 0;
@@ -34,7 +47,7 @@ module.exports = class AccessToken {
         return true;
     }
 
-    getAccessToken(/*options*/) {
+    getAccessToken() {
         let context = this;
 
         if (context.isExpired()) {
@@ -140,7 +153,6 @@ module.exports = class AccessToken {
     buildAccessTokenURL() {
 
         const Util = require("./util.js");
-        let util = new Util();
 
         let accessToken = this.config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
 
@@ -158,7 +170,7 @@ module.exports = class AccessToken {
                 accessToken +=
                     "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
-                    + "&scope=" + util.normalizeScope(this.wskey.authParams.scope);
+                    + "&scope=" + Util.normalizeScope(this.wskey.authParams.scope);
                 break;
             default:
                 accessToken = null;
