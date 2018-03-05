@@ -26,7 +26,7 @@ module.exports = class User {
 
             const url = (req.secure ? "https://" : "http://")
                 + req.hostname
-                + (port != 80 ? ":" + port : "")
+                + (port != 80 && port != 443 ? ":" + port : "")
                 + req.originalUrl;
 
             // ---- Handle the home page -----------------------------------------------------------------------------------

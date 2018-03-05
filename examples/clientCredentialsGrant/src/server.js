@@ -30,7 +30,7 @@ let accessToken = new AccessToken({
     grantType: "client_credentials"
 });
 
-const port = 8000;
+const port = 8000; // should match the redirect URI configured on the wskey
 
 // ---- Initialize a Server --------------------------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ app.listen(port, function () {
 app.use(OCLCMiddleware.authenticationManager({
     homePath: "/",
     authenticationPath: "/login",
-    port: port,
+    port: port, // if omitted assumes 80 for http or 443 for https. We set it to 8000 in this example.
     accessToken: accessToken,
     user: user,
     wskey: wskey,

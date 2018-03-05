@@ -21,17 +21,35 @@ npm install
 
 cd src
 ```
-edit server.js and install your wskey parameters
+edit server.js and define your authentication parameters
+
+Note that in this example, the user is running on port 8000 on localhost, and the redirect URI points to ```localhost:8000/auth/``` .
+
+The user also chose not to request refresh tokens by setting ```useRefreshTokens: false``` when creating the Access Token. [Refresh Tokens](https://www.oclc.org/developer/develop/authentication/access-tokens/refresh-token.en.html) allow a user to be reauthenticated without going through the authentication flow when their token expires. You can try this example with that parameter set to ```true``` as well.
 ```
+// Authentication parameters -------------------------------------------------------------------------------------------
+
 const wskey = new Wskey({
     "clientId": "{your clientId}",
     "secret": "{your secret}",
-    "authenticatingInstitutionId": "{your institution ID}",
     "contextInstitutionId": "{your institution ID}",
-    "redirectUri": "http://localhost:8000/auth/", // example catches this path
+    "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
     "scope": ["{scope 1}","{scope 2}","..."]
 });
+
+let user = new User({
+    "authenticatingInstitutionId": "{your institution ID}"
+});
+
+let accessToken = new AccessToken({
+    wskey: wskey,
+    user: user,
+    grantType: "authorization_code",
+    useRefreshTokens: false
+});
+
+const port = 8000; // should match the redirect uri configured on the wskey
 ```
 save the file
 ```
@@ -39,3 +57,17 @@ node server
 ```
 navigate to localhost:8000
 
+### Using the OCLCAuthentication middleware in node express
+
+Note that defined an OCLC Middleware for node express to handle the authentication flow for us. We tell the middleware where our home path is (```/```), and the link to start authentication (```/login```). The middleware also needs to know what port we are running on so it can match the redirect URI. If you are running in production on port 80 (http) or 443 (https), then omit the port parameter and no ":port" will be appended to the dns name in the url when matching the redirect URI.
+
+```
+app.use(OCLCMiddleware.authenticationManager({
+    homePath: "/",
+    authenticationPath: "/login",
+    port: port, // optional, if omitted assumes 80 for http or 443 for https
+    accessToken: accessToken,
+    user: user,
+    wskey: wskey,
+}));
+```
