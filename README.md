@@ -66,110 +66,15 @@ You can make client to server requests (ie, from a web browser) using the [Expli
 
 This is a two step process, first you request an authorization code. The user is redirected to a sign in page, and if they successfully sign in, they are redirected back to your page and an access token is passed along.
 
-In this simple example, we request an authorization code and retrieve an access token.
+See ```examples/explicitAuthenticationFlow``` ([README.md](examples/explicitAuthenticationFlow/README.md)) for an example that requests an authorization code, retrieves an access token and handles a refresh token request (optional).
 
-#### index.html file
+### Client Credentials Grant Example
 
-The user can press the authenticate button, sign in and get an access token.
+Client Credentials Grant flow *does not* require a user to sign into OCLC in order to receive an Access Token. This flow assumes the client has already validated the user.
 
-```
-<html>
-<head>
-   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-</head>
-<body>
+See [Client Credentials Grant](https://www.oclc.org/developer/develop/authentication/access-tokens/client-credentials-grant.en.html) at the OCLC Developer Network for details on this flow.
 
-<h1>Explicit Authentication Flow Example</h1>
-<a href="/authenticate">
-   <button id="authenticate-button" class="btn btn-primary">Authenticate</button>
-</a>
-<pre id="token"></pre>
-
-<script>
-    // Display the token parameters, if one has been requested
-    $.ajax({
-        "url": "/token",
-    }).done(function (result) {
-        if (result !== "") {
-            let resultJson = JSON.parse(result);
-            $("#token").html(JSON.stringify(resultJson, null, 4));
-        } else {
-            $("#token").html("Press Authenticate to obtain an authorization token.");
-        }
-    });
-</script>
-</body>
-</html>
-```
-
-#### nodeJS server file
-
-create a node project, install express, path and this library, and then start the server (node server).
-
-```
-const express = require("express");
-const path = require("path");
-const Wskey = require("nodeauth/src/Wskey");
-
-var wskey = new Wskey({
-    "clientId": "bCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygG0U1KJZoeAittuVjGRywCDdrsxahv2bsjtKq6hLM",
-    "secret": "UyZfIJdG4XlatxQOjdkQZw==",
-    "authenticatingInstitutionId": "128807",
-    "contextInstitutionId": "128807",
-    "redirectUri": "http://localhost:8000/auth/",
-    "responseType": "code",
-    "scope": ["WMS_CIRCULATION"]
-});
-
-// Initialize a server listening to http://localhost:8000
-const app = express();
-const port = 8000;
-app.listen(port, function () {
-    console.log("server listening on port " + port);
-});
-
-// Handle the main page
-app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname + "/index.html"));
-});
-
-// Handle an authentication request be redirecting to login url
-app.get("/authenticate", function (req, res) {
-    res.send('<html>' +
-        '<head>' +
-        '<meta http-equiv="refresh" content="0; url=' + wskey.getLoginURL() + '" />' +
-        '</head>' +
-        '</html>');
-});
-
-// Return the token information
-app.get("/token", function (req, res, next) {
-    if (this.authToken) {
-        res.send(JSON.stringify(this.authToken.params));
-    } else {
-        res.send();
-    }
-});
-
-// Handle the redirect page
-app.get("/auth/", function (req, res) {
-    let context = this;
-    const redirectHtml = "<html><head>" +
-        "<meta http-equiv=\"refresh\" content=\"0; url=http://localhost:8000\" />" +
-        "</head></html>";
-    wskey.createAuthToken({"authorizationCode": req.query.code, "grantType": "authorization_code"})
-        .then(
-            function (authToken) {
-                context.authToken = authToken;
-                res.send(redirectHtml);
-            })
-        .catch(
-            function (err) {
-                console.log(err.message);
-                res.send(redirectHtml);
-            });
-});
-```
+See ```examples/clientCredentialsGrant``` ([README.md](examples/clientCredentialsGrant/README.md)) for more details.
 
 ## Clone and Test this Library
 
