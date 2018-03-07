@@ -99,7 +99,9 @@ For an example of Client Credentials Grant, go to ```examples/clientCredentialsG
 ### Installation
 
 ```
-git clone TODO
+git clone https://github.com/OCLC-Developer-Network/oclc-auth-node
+
+cd oclc-auth-node
 
 npm install
 ```
