@@ -23,9 +23,9 @@ cd src
 ```
 Edit server.js and define your authentication parameters.
 
-Note that in this example, the user is running on port 8000 on localhost, and the redirect URI points to ```localhost:8000/auth/``` .
+Note that in this example, the example is running on port 8000 on localhost, and the redirect URI points to ```localhost:8000/auth/``` .
 
-The user also chose not to request refresh tokens by setting ```useRefreshTokens: false``` when creating the Access Token. [Refresh Tokens](https://www.oclc.org/developer/develop/authentication/access-tokens/refresh-token.en.html) allow a user to be reauthenticated without going through the authentication flow when their token expires. You can try this example with that parameter set to ```true``` as well.
+To enable refresh tokens, add ```"refresh_token"``` to the list of scopes. [Refresh Tokens](https://www.oclc.org/developer/develop/authentication/access-tokens/refresh-token.en.html) allow a user to be reauthenticated without going through the authentication flow when their token expires. You can try this example with that parameter set to ```true``` as well.
 ```
 // Authentication parameters -------------------------------------------------------------------------------------------
 
@@ -51,11 +51,11 @@ let accessToken = new AccessToken({
 
 const port = 8000; // should match the redirect uri configured on the wskey
 ```
-save the file
+Run the server:
 ```
 node server
 ```
-navigate to localhost:8000
+Navigate to localhost:8000 in a web browser.
 
 This example allows you to request a Bibliographic Record using your token, provided your key is scoped for "WorldCatMetadataAPI".
 
