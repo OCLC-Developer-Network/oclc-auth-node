@@ -48,30 +48,20 @@ const getBibRecord = function (oclcNumber) {
         .catch(function (err) {
             console.log("\n*** Error calculating the authorization header.\n");
             console.log(err.name + "  " + err.statusCode);
-            console.log("n" + err.message.replace(/\</g,"\n<").replace(/&apos;/g, "'").replace(/&quot;/g,'"') + "\n");
-            return(err)
+            console.log("n" + err.message.replace(/\</g, "\n<").replace(/&apos;/g, "'").replace(/&quot;/g, '"') + "\n");
+            return (err)
         })
 };
 
 // Execute the promise to retrieve the bibliographic record for
-// "The French Cook: sauces" by Holly Herrick and Steven Rothfeld
-// and display data from variable field 520.
+// "The French Cook: sauces" by Holly Herrick and Steven Rothfeld.
 getBibRecord("829180274")
 
     .then(function (bibRecord) {
 
-        let variableFields = bibRecord.content.record.variableFields;
-        let variableField520;
-        for (let i = 0; i < variableFields.length; i++) {
-            if (variableFields[i].tag === "520") {
-                variableField520 = variableFields[i];
-                break;
-            }
-        }
-        console.log("\nVariable field 520 subfield 'data':\n-----------------------------------");
-        console.log(variableField520.subfieldItems[0]['data'] + "\n");
+        console.log(JSON.stringify(bibRecord, null, 4));
     })
 
     .catch(function (err) {
-            console.log("*** Unable to retrieve Bibliographic Resource.\n");
+        console.log("*** Unable to retrieve Bibliographic Resource.\n");
     });
