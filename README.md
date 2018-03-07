@@ -10,7 +10,7 @@ npm install https://github.com/OCLC-Developer-Network/oclc-auth-node.git
 
 | Object| usage / options | Notes  |
 |-------|-----------------|--------|
-| Wskey | const Wskey = require("nodeauth/src/Wskey") | Wskey Class|
+| Wskey | <pre>const Wskey = require("nodeauth/src/Wskey")</pre> | Wskey Class|
 | wskey | <pre>wskey = new Wskey({<br>"clientId": your web services public client ID,<br>"secret": your web services key secret,<br>"contextInstitutionId": ID of the institution to get data against,<br>"redirectUri": for tokens, where to land back after authenticating<br>"responseType": "code",<br>"scope": \["scope1", "scope2", ... "refresh_token"]<br>})</pre> | WSKey class instance. |
 | getAuthorizationHeader | <pre>wskey.getAuthorizationHeader({<br>    "method": The request method (GET, POST, etc)<br>    "url": The url to be called<br>    "user": The User object<br>})<br>.then( function(authorizationHeader){} )<br>.catch( function(err){} )</pre>| Returns a Promise that resolves to the Authorization Header or rejects with an error message. |
 | getClientId | wskey.getClientId() | Returns the clientId string |
@@ -30,8 +30,8 @@ npm install https://github.com/OCLC-Developer-Network/oclc-auth-node.git
 
 | Object| usage / options | Notes  |
 |-------|-----------------|--------|
-|User|const User = require("nodeauth/src/User") | User class.|
-|user|<pre>let user = new User({<br>    principalId: "your Principal ID"<br>    principalIdns: "your Principal IDNS"<br>    authenticatingInstitutionId: "your Authenticating Institution ID"<br>})</pre>| User class instance.|
+|User|<pre>const User = require("nodeauth/src/User")</pre> | User class.|
+|user|<pre>let user = new User({<br>    principalId: "your Principal ID"<br>    principalIdns: "your Principal IDNS"<br>    authenticatingInstitutionId:<br>        "your Authenticating Institution ID"<br>})</pre>| User class instance.|
 |getPrincipalId | user.getPrincipalId() | gets the Principal ID|
 |setPrincipalId | user.setPrincipalId(string)| sets the Principal ID |
 |getPrincipalIdns|user.getPrincipalIdns()|gets the Principal IDNS|
@@ -44,8 +44,8 @@ npm install https://github.com/OCLC-Developer-Network/oclc-auth-node.git
 
 | Object| usage / options | Notes  |
 |-------|-----------------|--------|
-| AccessToken | const AccessToken = require("nodeauth/src/AccessToken")| AccessToken class. |
-| accessToken| <pre>let accessToken = new AccessToken({<br>    wskey: Wskey object,<br>    grantType: "client_credentials" or "authorization_code" or "refresh_token"<br>    user: User object});</pre> | AccessToken class instance.|
+| AccessToken | <pre>const AccessToken = require("nodeauth/src/AccessToken")</pre>| AccessToken class. |
+| accessToken| <pre>let accessToken = new AccessToken({<br>    wskey: Wskey object,<br>    grantType: "client_credentials"<br>        or "authorization_code"<br>        or "refresh_token"<br>    user: User object<br>});</pre> | AccessToken class instance.|
 | getAccessToken | <pre>accessToken.getAccessToken({})<br>.then( function(accessToken){} )<br>.catch( function(err){} )</pre>| A promise that resolves when a token has been retrieved. Note that this method acts on itself - the accessToken it is called on is updated and it returns itself in the then() to permit further chaining. This method will return an unexpired token if one already exists, get a new one if no token exists, or get a refreshed token - all automatically.|
 | createAccessToken | <pre>accessToken.createAccessToken()<br>   .then( function(accessToken){} )<br>   .catch( function(err){} )</pre> | A promise that resolves when a token has been created. Note that this method acts on itself - the accessToken it is called on is updated and it returns itself in the then() to permit further chaining. |
 | getValue | accessToken.getValue() | returns the access token string |
