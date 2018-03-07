@@ -8,29 +8,37 @@ const Wskey = require("nodeauth/src/Wskey");
 const AccessToken = require("nodeauth/src/accessToken");
 const User = require("nodeauth/src/user");
 const OCLCMiddleware = require("nodeauth/src/oclcMiddleware");
+const rp = require("request-promise-native");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
 const wskey = new Wskey({
-    "clientId": "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM",
-    "secret": "EyZfIJdGQXeatxQOjdkQZw==",
-    "contextInstitutionId": "128807",
+    "clientId": "{your clientId}",
+    "secret": "{your secret}",
+    "contextInstitutionId": "{your institution ID}",
     "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
-    "scope": ["WMS_CIRCULATION"]
+    "scope": ["WorldCatMetadataAPI"]
 });
 
-let user = new User({
-    "authenticatingInstitutionId": "128807"
+const user = new User({
+    principalId: "{your principal ID}",
+    principalIdns: "{your principal IDNS}",
+    authenticatingInstitutionId: "{your institution ID}"
 });
 
 let accessToken = new AccessToken({
     wskey: wskey,
-    user: user,
-    grantType: "client_credentials"
+    grantType: "client_credentials",
+    user: user
 });
 
 const port = 8000; // should match the redirect URI configured on the wskey
+
+// ---- Application globals --------------------------------------------------------------------------------------------
+
+let bibRecord;
+let oclcnumber = "829180274";
 
 // ---- Initialize a Server --------------------------------------------------------------------------------------------
 
@@ -55,6 +63,36 @@ app.use(OCLCMiddleware.authenticationManager({
 app.get("/", function (req, res) {
     res.render("index", {
         pageTitle: "Client Credentials Grant",
-        token: JSON.stringify(accessToken.params, null, 4)
+        token: accessToken.getValue() ? JSON.stringify(accessToken.params, null, 4) : "Press button to get token.",
+        bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
+        oclcnumber: oclcnumber
     });
+});
+
+// Get a bib record
+app.get("/bibRecord", function (req, res) {
+
+    if (!accessToken.getValue()) {
+        res.redirect("/");
+    }
+
+    oclcnumber = req.query.oclcnumber;
+
+    rp({
+        url: `https://worldcat.org/bib/data/${oclcnumber}`,
+        method: "GET",
+        headers: {
+            "Accept": "application/atom+json",
+            "Authorization": `Bearer ${accessToken.getValue()}`
+        },
+        json: true
+    })
+        .then(function (data) {
+            bibRecord = data;
+            res.redirect("/");
+        })
+        .catch(function (err) {
+            console.log(err);
+            res.redirect("/");
+        });
 });

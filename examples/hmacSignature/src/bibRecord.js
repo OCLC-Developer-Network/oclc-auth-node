@@ -8,15 +8,15 @@ const User = require("nodeauth/src/user");
 const rp = require("request-promise-native");
 
 const wskey = new Wskey({
-    clientId: "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM",
-    secret: "EyZfIJdGQXeatxQOjdkQZw==",
-    contextInstitutionId: "128807"
+    clientId: "{your clientId}",
+    secret: "{your secret}",
+    contextInstitutionId: "{your institution ID}"
 });
 
 const user = new User({
-    principalId: "8eaa9f92-3951-431c-975a-d7df26b8d131",
-    principalIdns: "urn:oclc:wms:da",
-    authenticatingInstitutionId: "128807"
+    principalId: "{your principal ID}",
+    principalIdns: "{your principal IDNS}",
+    authenticatingInstitutionId: "{your institution ID}"
 });
 
 // Construct a promise to retrieve a bib record
@@ -58,7 +58,6 @@ const getBibRecord = function (oclcNumber) {
 getBibRecord("829180274")
 
     .then(function (bibRecord) {
-
         console.log(JSON.stringify(bibRecord, null, 4));
     })
 

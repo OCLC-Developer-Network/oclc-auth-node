@@ -37,7 +37,7 @@ module.exports = class User {
 
             // ---- Handle an authentication request -----------------------------------------------------------------------
 
-            if (req.originalUrl === options.authenticationPath) {
+            else if (req.originalUrl === options.authenticationPath) {
 
                 if (options.accessToken && !options.accessToken.isExpired()) {
                     res.send(redirectHome);
@@ -76,7 +76,7 @@ module.exports = class User {
 
             // ---- Handle the redirect URI --------------------------------------------------------------------------------
 
-            if (url.split("?")[0] === options.wskey.authParams.redirectUri) {
+            else if (url.split("?")[0] === options.wskey.authParams.redirectUri) {
 
                 if (options.accessToken.getGrantType() === "authorization_code") {
 
@@ -98,6 +98,9 @@ module.exports = class User {
                 if (options.accessToken.getGrantType() === "client_credentials") {
                     res.send(redirectHome)
                 }
+            } else {
+                // Return flow back to express
+                next();
             }
         }
     }

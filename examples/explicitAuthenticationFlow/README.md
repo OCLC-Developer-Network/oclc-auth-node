@@ -57,9 +57,11 @@ node server
 ```
 navigate to localhost:8000
 
+This example allows you to request a Bibliographic Record using your token, provided your key is scoped for "WorldCatMetadataAPI".
+
 ### Using the OCLCAuthentication middleware in node express
 
-Note that defined an OCLC Middleware for node express to handle the authentication flow for us. We tell the middleware where our home path is (```/```), and the link to start authentication (```/login```). The middleware also needs to know what port we are running on so it can match the redirect URI. If you are running in production on port 80 (http) or 443 (https), then omit the port parameter and no ":port" will be appended to the dns name in the url when matching the redirect URI.
+Note that we applied an OCLC Middleware for node express to handle the authentication flow for us. We tell the middleware where our home path is (```/```), and the link to start authentication (```/login```). The middleware also needs to know what port we are running on so it can match the redirect URI. If you are running in production on port 80 (http) or 443 (https), then omit the port parameter and no ":port" will be appended to the dns name in the url when matching the redirect URI.
 
 ```
 app.use(OCLCMiddleware.authenticationManager({

@@ -2,9 +2,6 @@ module.exports = class Wskey {
 
     constructor(authParams) {
 
-        const Config = require("./config.js");
-        const config = new Config();
-
         if (authParams) {
             this.authParams = {
                 "clientId": authParams.clientId,
@@ -121,7 +118,7 @@ module.exports = class Wskey {
     }
 
     /**
-     * REturn the authorization URL required for the authorization header
+     * Return the authorization URL required for the authorization header
      * @returns {string}
      */
     getHmacAuthorizationUrl() {
@@ -179,6 +176,8 @@ module.exports = class Wskey {
      * @param cb
      */
     getAuthorizationHeaderCallback(options, cb) {
+        const Config = require("./config.js");
+        const config = new Config();
         const q = "\"";
         const qc = "\", ";
         const context = this;
@@ -190,7 +189,7 @@ module.exports = class Wskey {
         }, function (signature) {
             if (options.user.principalId && options.user.principalIdns) {
                 cb(
-                    context.getHmacAuthorizationUrl() + " "
+                    config.HMAC_AUTHORIZATION_URL + " "
                     + "clientId=" + q + context.authParams.clientId + qc
                     + "timestamp=" + q + signature.timeStamp + qc
                     + "nonce=" + q + signature.nonce + qc

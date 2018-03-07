@@ -5,5 +5,10 @@ html(lang="en")
     body
         h1= pageTitle
         a(href="/login")
-            button Sign In
+            button Request Token
         pre= token
+        form(action="/bibRecord")
+            label(for="oclc-number") OCLC Number:&nbsp;
+            input(type="text" id="oclc-number" name="oclcnumber" value=oclcnumber)
+            button(type="submit") Get Bib Record
+        pre= bibRecord

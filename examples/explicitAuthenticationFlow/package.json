@@ -11,6 +11,7 @@
   "dependencies": {
     "express": "^4.16.2",
     "nodeauth": "file:../../../oclc-auth-node",
-    "pug": "^2.0.0-rc.4"
+    "pug": "^2.0.0-rc.4",
+    "request-promise-native": "^1.0.5"
   }
 }

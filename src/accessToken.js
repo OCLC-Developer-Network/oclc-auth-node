@@ -138,6 +138,7 @@ module.exports = class AccessToken {
     }
 
     createAccessToken() {
+
         const context = this;
         let accessTokenURL = context.buildAccessTokenURL();
         return context.requestAccessToken(accessTokenURL)
@@ -164,6 +165,7 @@ module.exports = class AccessToken {
     }
 
     requestAccessToken(accessTokenURL) {
+
         let context = this;
 
         return new Promise(function (resolve, reject) {
