@@ -21,7 +21,7 @@ npm install
 
 cd src
 ```
-edit server.js and define your authentication parameters
+Edit server.js and define your authentication parameters.
 
 Note that in this example, the user is running on port 8000 on localhost, and the redirect URI points to ```localhost:8000/auth/``` .
 
