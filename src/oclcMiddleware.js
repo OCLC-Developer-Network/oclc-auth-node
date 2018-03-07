@@ -14,7 +14,7 @@ module.exports = class User {
         if (options.accessToken.getGrantType() === "authorization_code") {
 
             redirectToAuthCodeLoginURL = '<html><head>' +
-                '<meta http-equiv="refresh" content="0; url=' + AuthCode.getLoginURL({
+                '<meta http-equiv="refresh" content="0; url=' + AuthCode.getLoginUrl({
                     wskey: options.wskey,
                     user: options.user,
                     useRefreshTokens: options.accessToken.useRefreshTokens
@@ -32,19 +32,28 @@ module.exports = class User {
             // ---- Handle the home page -----------------------------------------------------------------------------------
 
             if (req.originalUrl === options.homePath) {
-                console.log("accessToken = "
-                    + (options.accessToken && options.accessToken.getValue() ? options.accessToken.getValue() : "none"));
                 next();
             }
 
             // ---- Handle an authentication request -----------------------------------------------------------------------
 
             if (req.originalUrl === options.authenticationPath) {
+
                 if (options.accessToken && !options.accessToken.isExpired()) {
-                    console.log("No need to sign in - " + options.accessToken.getValue() + " is not expired");
                     res.send(redirectHome);
-                } else {
-                    console.log("We need to sign in - redirecting to login URL");
+                } else if(options.accessToken
+                    && options.accessToken.isExpired()
+                    && !options.accessToken.isRefreshTokenExpired()) {
+                    options.accessToken.refresh()
+                        .then(function(){
+                            res.send(redirectHome);
+                        })
+                        .catch(function(err){
+                            console.log(err.message);
+                            res.send(redirectHome);
+                        })
+                }
+                else {
                     if (options.accessToken.getGrantType() === "authorization_code") {
                         res.send(redirectToAuthCodeLoginURL);
                     }

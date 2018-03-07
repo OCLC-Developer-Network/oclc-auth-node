@@ -12,23 +12,23 @@ const OCLCMiddleware = require("nodeauth/src/oclcMiddleware");
 // Authentication parameters -------------------------------------------------------------------------------------------
 
 const wskey = new Wskey({
-    "clientId": "{your clientId}",
-    "secret": "{your secret}",
-    "contextInstitutionId": "{your institution ID}",
+    "clientId": "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM",
+    "secret": "EyZfIJdGQXeatxQOjdkQZw==",
+    "contextInstitutionId": "128807",
     "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
-    "scope": ["{scope 1}","{scope 2}","..."]
+    "scope": ["WMS_CIRCULATION"]
 });
 
 let user = new User({
-    "authenticatingInstitutionId": "{your institution ID}"
+    "authenticatingInstitutionId": "128807"
 });
 
 let accessToken = new AccessToken({
     wskey: wskey,
     user: user,
     grantType: "authorization_code",
-    useRefreshTokens: false
+    useRefreshTokens: true
 });
 
 const port = 8000; // should match the redirect URI configured on the wskey
@@ -56,6 +56,6 @@ app.use(OCLCMiddleware.authenticationManager({
 app.get("/", function (req, res) {
     res.render("index", {
         pageTitle: "Explicit Authentication Flow",
-        token: JSON.stringify(accessToken.params, null, 4)
+        token: accessToken.params.accessToken ? JSON.stringify(accessToken.params, null, 4) : 'Press "Sign In" to request an access token'
     });
 });

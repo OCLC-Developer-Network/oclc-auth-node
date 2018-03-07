@@ -3,49 +3,23 @@ module.exports = class AccessToken {
     constructor(options) {
         this.RefreshToken = require("./refreshToken.js");
         this.User = require("./user.js");
+        this.Util = require("./util.js");
 
         this.wskey = options ? options.wskey : null;
-        this.refreshToken = options ? options.refreshToken : null;
-        this.grantType = options ? options.grantType : null;
-        this.authorizationCode = options ? options.authorizationCode : null;
-        this.useRefreshTokens = options ? options.useRefreshTokens : false;
+
         this.params = {
             "accessToken": null,
-            "expiresAt": null,
-            "errorCode": null,
+            "authorizationCode": options ? options.authorizationCode : null,
             "contextInstitutionId": null,
-            "tokenType": null,
+            "errorCode": null,
+            "expiresAt": null,
             "expiresIn": null,
-            "refreshToken": {},
-            "user": options && options.user ? options.user : new this.User(),
-            "loginUrl": null
+            "grantType": options ? options.grantType : null,
+            "refreshToken": options ? options.refreshToken : new this.RefreshToken(),
+            "tokenType": null,
+            "user": options && options.user ? options.user : new this.User()
         };
-        const Config = require("./config.js");
-        this.config = new Config();
     };
-
-    getUser() {
-        return this.params.user;
-    }
-
-    getGrantType() {
-        return this.grantType;
-    }
-
-    getValue() {
-        return this.params.accessToken;
-    }
-
-    setAuthorizationCode(code) {
-        this.authorizationCode = code;
-    }
-
-    isExpired() {
-        if (this.params.expiresAt) {
-            return new Date(this.params.expiresAt) - new Date() <= 0;
-        }
-        return true;
-    }
 
     getAccessToken() {
         let context = this;
@@ -61,6 +35,74 @@ module.exports = class AccessToken {
                 resolve(context);
             })
         }
+    }
+
+    getValue() {
+        return this.params.accessToken;
+    }
+
+    getAuthorizationCode() {
+        return this.params.authorizationCode;
+    }
+
+    setAuthorizationCode(authorizationCode) {
+        this.params.authorizationCode = authorizationCode;
+    }
+
+    getContextInstitutionId() {
+        return this.params.contextInstitutionId;
+    }
+
+    getErrorCode() {
+        return this.params.errorCode;
+    }
+
+    getExpiresAt() {
+        return this.params.expiresAt;
+    }
+
+    getExpiresIn() {
+        return this.params.expiresIn;
+    }
+
+    getGrantType() {
+        return this.params.grantType;
+    }
+
+    setGrantType(grantType) {
+        this.params.grantType = grantType;
+    }
+
+    getUser() {
+        return this.params.user;
+    }
+
+    setUser(user) {
+        this.params.user = user;
+    }
+
+    getRefreshToken() {
+        return this.params.refreshToken;
+    }
+
+    getTokenType() {
+        return this.params.tokenType;
+    }
+
+    isExpired() {
+        if (this.params.expiresAt) {
+            return new Date(this.params.expiresAt) - new Date() <= 0;
+        }
+        return true;
+    }
+
+    isRefreshTokenExpired() {
+        if (this.Util.scopeContainsRefreshToken(this.wskey.getScope())
+            && this.params.accessToken && this.params.refreshToken
+            && this.params.refreshToken.refreshToken) {
+            return new Date(this.params.refreshToken.expiresAt) - new Date() <= 0;
+        }
+        return true;
     }
 
     refresh() {
@@ -153,15 +195,17 @@ module.exports = class AccessToken {
     buildAccessTokenURL() {
 
         const Util = require("./util.js");
+        const Config = require("./config.js");
+        const config = new Config();
 
-        let accessToken = this.config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
+        let accessToken = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.params.grantType;
 
-        switch (this.grantType) {
+        switch (this.params.grantType) {
             case "refresh_token":
-                accessToken += "&refresh_token=" + this.refreshToken.refreshToken;
+                accessToken += "&refresh_token=" + this.params.refreshToken.refreshToken;
                 break;
             case "authorization_code":
-                accessToken += "&code=" + this.authorizationCode
+                accessToken += "&code=" + this.params.authorizationCode
                     + "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
                     + "&redirect_uri=" + this.wskey.authParams.redirectUri;

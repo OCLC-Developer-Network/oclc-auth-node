@@ -1,9 +1,9 @@
 module.exports = class Util {
 
     /**
-     *
-     * @param scope Array of one or more strings
-     * @returns {string}
+     * Returns a normalized list of scopes.
+     * @param scope an array of scopes like ["WMS_CIRCULATION","WMS_NCIP","refresh_token"]
+     * @returns {string} a single string of space separate scopes like "WMS_CIRCULATION WMS_NCIP refresh_token"
      */
     static normalizeScope(scope) {
         // Build a space separated scope list from an array of scopes.
@@ -17,5 +17,22 @@ module.exports = class Util {
             }
         }
         return normalizedScope;
+    }
+
+    /**
+     * Checks if the string array of scopes contains "refresh_token" so we don't accidently duplicate it.
+     * @param scope an array of scopes like ["WMS_CIRCULATION","WMS_NCIP","refresh_token"]
+     * @returns {boolean} true if the string "refresh_token" is in the array of scopes
+     */
+    static scopeContainsRefreshToken(scope) {
+        let containsRefreshToken = false;
+        for (let i=0; i< scope.length; i++) {
+            if (scope[i] === "refresh_token") {
+                containsRefreshToken = true;
+                break;
+            }
+        }
+
+        return containsRefreshToken;
     }
 };

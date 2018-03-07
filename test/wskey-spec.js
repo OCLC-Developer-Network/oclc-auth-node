@@ -1,7 +1,7 @@
-const WSKey = require("../src/wskey.js");
-const User = require("../src/user.js");
-
 describe("HMAC Hashing", function () {
+
+    const WSKey = require("../src/wskey.js");
+    const User = require("../src/user.js");
 
     const wskey = new WSKey({
         "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
@@ -77,5 +77,35 @@ describe("HMAC Hashing", function () {
                     done();
                 }
             );
+    });
+
+    it('should have working getters and setters',function(){
+        let w = new WSKey();
+
+        expect(w.getClientId()).toBeNull();
+        expect(w.getSecret()).toBeNull();
+        expect(w.getContextInstitutionId()).toBeNull();
+        expect(w.getRedirectUri()).toBeNull();
+        expect(w.getResponseType()).toBeNull();
+        expect(w.getScope()).toEqual([]);
+
+        w.setClientId("12345");
+        expect(w.getClientId()).toEqual("12345");
+
+        w.setSecret("sEcReT6");
+        expect(w.getSecret()).toEqual("sEcReT6");
+
+        w.setContextInstitutionId("334455");
+        expect(w.getContextInstitutionId()).toEqual("334455");
+
+        w.setRedirectUri("http://www.mysite.com/auth/");
+        expect(w.getRedirectUri()).toEqual("http://www.mysite.com/auth/");
+
+        w.setResponseType("code");
+        expect(w.getResponseType()).toEqual("code");
+
+        w.setScope(["scope1","refresh_token"]);
+        expect(w.getScope()).toEqual(["scope1","refresh_token"]);
+
     });
 });

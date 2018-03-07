@@ -1,0 +1,15 @@
+{
+  "name": "hmacSignature",
+  "version": "1.0.0",
+  "description": "Demonstrate how to generate an HMAC signature for server to server requests.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "campbelg@oclc.org",
+  "license": "MIT",
+  "dependencies": {
+    "nodeauth": "file:../../../oclc-auth-node",
+    "request-promise-native": "^1.0.5"
+  }
+}

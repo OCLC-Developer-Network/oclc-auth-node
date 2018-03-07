@@ -2,18 +2,69 @@ module.exports = class Wskey {
 
     constructor(authParams) {
 
-        if (!authParams.clientId) {
-            throw "Error creating Wskey - missing clientId";
-        }
+        const Config = require("./config.js");
+        const config = new Config();
 
-        this.authParams = {
-            "clientId": authParams.clientId,
-            "secret": authParams.secret,
-            "contextInstitutionId": authParams.contextInstitutionId,
-            "redirectUri": authParams.redirectUri,
-            "responseType": authParams.responseType ? authParams.responseType : null,
-            "scope": authParams.scope
-        };
+        if (authParams) {
+            this.authParams = {
+                "clientId": authParams.clientId,
+                "secret": authParams.secret,
+                "contextInstitutionId": authParams.contextInstitutionId,
+                "redirectUri": authParams.redirectUri,
+                "responseType": authParams.responseType ? authParams.responseType : null,
+                "scope": authParams.scope
+            };
+        } else {
+            this.authParams = {}
+        }
+    }
+
+    getClientId() {
+        return this.authParams.clientId ? this.authParams.clientId : null;
+    }
+
+    setClientId(clientId) {
+        this.authParams.clientId = clientId;
+    }
+
+    getSecret() {
+        return this.authParams.secret ? this.authParams.secret : null;
+    }
+
+    setSecret(secret) {
+        this.authParams.secret = secret;
+    }
+
+    getContextInstitutionId() {
+        return this.authParams.contextInstitutionId ? this.authParams.contextInstitutionId : null;
+    }
+
+    setContextInstitutionId(contextInstitutionId) {
+        this.authParams.contextInstitutionId = contextInstitutionId;
+    }
+
+    getRedirectUri() {
+        return this.authParams.redirectUri ? this.authParams.redirectUri : null;
+    }
+
+    setRedirectUri(redirectUri) {
+        this.authParams.redirectUri = redirectUri;
+    }
+
+    getResponseType() {
+        return this.authParams.responseType ? this.authParams.responseType : null;
+    }
+
+    setResponseType(responseType) {
+        this.authParams.responseType = responseType;
+    }
+
+    getScope() {
+        return this.authParams.scope ? this.authParams.scope : [];
+    }
+
+    setScope(scope) {
+        this.authParams.scope = scope;
     }
 
     /**
@@ -22,9 +73,12 @@ module.exports = class Wskey {
      * method - optional, defaults to GET
      * queryParameters - optional, defaults to ""
      * bodyHash - never include, not implemented
+     * queryParameters - of the form "", defaults to ""
+     * user - a User object
+     *
      * timeStamp - never include, for unit testing only
      * nonce - never include, for unit testing only
-     * queryParameters - of the form "", defaults to ""
+     *
      * @param options
      * @param cb
      */
@@ -115,7 +169,13 @@ module.exports = class Wskey {
 
     /**
      * Calculates the authorizationHeader
-     * @param options
+     * @param options {
+     *     method: the method of the request (GET, PUT, etc)
+     *     url: the url of the authenticated request
+     *     user: the User object which contains authenticatingInstitutionId, principalId and principalIdns
+     *
+     *     timestamp: optional (for testing only)
+     *     nonce: optional (for testing only)
      * @param cb
      */
     getAuthorizationHeaderCallback(options, cb) {
@@ -141,7 +201,7 @@ module.exports = class Wskey {
             } else {
                 // Principal ID and IDNS are missing for AuthCode hashing
                 cb(
-                    context.getHmacAuthorizationUrl() + " "
+                    config.HMAC_AUTHORIZATION_URL + " "
                     + "clientId=" + q + context.authParams.clientId + qc
                     + "timestamp=" + q + signature.timeStamp + qc
                     + "nonce=" + q + signature.nonce + qc

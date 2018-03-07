@@ -99,4 +99,42 @@ describe("Access Token", function () {
 
     });
 
+    it("should detect if the refresh token is expired",function(){
+
+        const wskey = new Wskey({
+            "clientId": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
+            "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
+            "contextInstitutionId": "128807",
+            "redirectUri": "http://localhost/auth/",
+            "responseType": "code",
+            "scope": ["WMS_CIRCULATION", "WMS_NCIP", "refresh_token"]
+        });
+        const accessToken = new AccessToken({wskey:wskey});
+
+        // useRefreshTokens is true but there is no token
+        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
+
+        // useRefreshTokens is true but there is no refresh token
+        accessToken.params.accessToken = "tk_aprcZaw2cx67G4RPyCaeqiRBvqlVTU4Cfufj";
+        accessToken.useRefreshTokens = true;
+        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
+
+        // useRefreshTokens is true and there is a refresh token that is expired
+        accessToken.params.refreshToken = {
+            "refreshToken": "rt_bJTBHFohtNEWlcLGe9iYMzxGxndq7hQsVm62",
+            "expiresIn": 604799,
+            "expiresAt": "2017-01-01 15:00:00Z"
+        };
+        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
+
+        // useRefreshTokens is true and there is a refresh token that is not expired
+        accessToken.params.refreshToken = {
+            "refreshToken": "rt_bJTBHFohtNEWlcLGe9iYMzxGxndq7hQsVm62",
+            "expiresIn": 604799,
+            "expiresAt": "2030-01-01 15:00:00Z"
+        };
+
+        expect(accessToken.isRefreshTokenExpired()).not.toBeTruthy();
+    });
+
 });
