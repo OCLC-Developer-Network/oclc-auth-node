@@ -4,6 +4,13 @@ module.exports = class User {
 
         const port = options.port && options.port != 80 ? options.port : "80";
         const AuthCode = require("./authCode.js");
+        const authCode = new AuthCode({
+            clientID:options.wskey.getClientID(),
+            authenticatingInstitutionID:options.user.getAuthenticatingInstitutionID(),
+            contextInstitutionID:options.wskey.getContextInstitutionID(),
+            scope: options.wskey.getScope(),
+            redirectUri: options.wskey.getRedirectUri()
+        });
 
         const redirectHome = '<html><head>' +
             '<meta http-equiv="refresh" content="0; url=' + options.homePath + '" />' +
@@ -14,11 +21,7 @@ module.exports = class User {
         if (options.accessToken.getGrantType() === "authorization_code") {
 
             redirectToAuthCodeLoginURL = '<html><head>' +
-                '<meta http-equiv="refresh" content="0; url=' + AuthCode.getLoginUrl({
-                    wskey: options.wskey,
-                    user: options.user,
-                    useRefreshTokens: options.accessToken.useRefreshTokens
-                }) + '" />' +
+                '<meta http-equiv="refresh" content="0; url=' + authCode.getLoginUrl() + '" />' +
                 '</head></html>';
         }
 

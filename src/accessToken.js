@@ -1,34 +1,31 @@
 module.exports = class AccessToken {
 
-    constructor(options) {
+
+    constructor(grantType, options) {
         this.RefreshToken = require("./refreshToken.js");
         this.User = require("./user.js");
         this.Util = require("./util.js");
 
+        this.grantType = grantType;
         this.wskey = options ? options.wskey : null;
-
-        this.params = {
-            "accessToken": null,
-            "authorizationCode": options ? options.authorizationCode : null,
-            "contextInstitutionId": null,
-            "errorCode": null,
-            "expiresAt": null,
-            "expiresIn": null,
-            "grantType": options ? options.grantType : null,
-            "refreshToken": options ? options.refreshToken : new this.RefreshToken(),
-            "tokenType": null,
-            "user": options && options.user ? options.user : new this.User()
-        };
+        this.scope = options ? options.scope : null;
+        this.contextInstitutionID = options ? options.contextInstitutionID : null;
+        this.redirectUri = options ? options.redirectUri : null;
+        this.code = options ? options.code : null;
+        this.refreshToken = options ? options.refreshToken : null;
+        this.accessTokenString = options ? options.accessTokenString : null;
+        this.expiresAt = options ? options.expiresAt : null;
+        this.user = options ? options.user : null;
     };
 
     getAccessToken() {
         let context = this;
 
-        if (context.isExpired()) {
-            if (context.params.refreshToken.refreshToken) {
-                return context.refresh();
+        if (this.isExpired()) {
+            if (this.refreshToken.getValue()) {
+                return this.refresh();
             } else {
-                return context.createAccessToken();
+                return this.createAccessToken();
             }
         } else {
             return new Promise(function (resolve) {
@@ -38,69 +35,72 @@ module.exports = class AccessToken {
     }
 
     getValue() {
-        return this.params.accessToken;
+        return this.accessTokenString;
     }
 
-    getAuthorizationCode() {
-        return this.params.authorizationCode;
+    getCode() {
+        return this.code;
     }
 
-    setAuthorizationCode(authorizationCode) {
-        this.params.authorizationCode = authorizationCode;
+    setcode(code) {
+        this.code = code;
     }
 
-    getContextInstitutionId() {
-        return this.params.contextInstitutionId;
+    getContextInstitutionID() {
+        return this.contextInstitutionID;
     }
 
     getErrorCode() {
-        return this.params.errorCode;
+        return this.errorCode;
     }
 
     getExpiresAt() {
-        return this.params.expiresAt;
+        return this.expiresAt;
     }
 
     getExpiresIn() {
-        return this.params.expiresIn;
+        return this.expiresIn;
     }
 
     getGrantType() {
-        return this.params.grantType;
+        return this.grantType;
     }
 
     setGrantType(grantType) {
-        this.params.grantType = grantType;
+        this.grantType = grantType;
     }
 
     getUser() {
-        return this.params.user;
+        return this.user;
     }
 
     setUser(user) {
-        this.params.user = user;
+        this.user = user;
     }
 
     getRefreshToken() {
-        return this.params.refreshToken;
+        return this.refreshToken;
     }
 
     getTokenType() {
-        return this.params.tokenType;
+        return this.tokenType;
+    }
+
+    getScope() {
+        return this.scope;
     }
 
     isExpired() {
-        if (this.params.expiresAt) {
-            return new Date(this.params.expiresAt) - new Date() <= 0;
+        if (this.expiresAt) {
+            return new Date(this.expiresAt) - new Date() <= 0;
         }
         return true;
     }
 
     isRefreshTokenExpired() {
-        if (this.Util.scopeContainsRefreshToken(this.wskey.getScope())
-            && this.params.accessToken && this.params.refreshToken
-            && this.params.refreshToken.refreshToken) {
-            return new Date(this.params.refreshToken.expiresAt) - new Date() <= 0;
+        if (this.Util.scopeContainsRefreshToken(this.getScope())
+            && this.getValue() && this.refreshToken && this.refreshToken.getValue()) {
+            return new Date(this.refreshToken.expiresAt) - new Date() <= 0;
         }
         return true;
     }
@@ -108,24 +108,23 @@ module.exports = class AccessToken {
     refresh() {
         const context = this;
 
-        let newAccessToken = new AccessToken({
+        let newAccessToken = new AccessToken("refresh_token", {
             wskey: this.wskey,
-            refreshToken: this.params.refreshToken,
-            grantType: "refresh_token",
+            refreshToken: this.refreshToken
         });
         const accessTokenURL = newAccessToken.buildAccessTokenURL();
         return newAccessToken.requestAccessToken(accessTokenURL)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
-                newAccessToken.params.accessToken = jsonResponse["access_token"];
-                newAccessToken.params.expiresAt = jsonResponse["expires_at"];
-                newAccessToken.params.errorCode = jsonResponse["error_code"];
-                newAccessToken.params.contextInstitutionId = jsonResponse["context_institution_id"];
-                newAccessToken.params.tokenType = jsonResponse["token_type"];
-                newAccessToken.params.expiresIn = jsonResponse["expires_in"];
-                newAccessToken.params.user.principalId = jsonResponse["principalID"];
-                newAccessToken.params.user.principalIdns = jsonResponse["principalIDNS"];
-                newAccessToken.params.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
+                newAccessToken.accessToken = jsonResponse["access_token"];
+                newAccessToken.expiresAt = jsonResponse["expires_at"];
+                newAccessToken.errorCode = jsonResponse["error_code"];
+                newAccessToken.contextInstitutionID = jsonResponse["context_institution_id"];
+                newAccessToken.tokenType = jsonResponse["token_type"];
+                newAccessToken.expiresIn = jsonResponse["expires_in"];
+                newAccessToken.user.principalID = jsonResponse["principalID"];
+                newAccessToken.user.principalIDNS = jsonResponse["principalIDNS"];
+                newAccessToken.user.authenticatingInstitutionID = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
                     newAccessToken.params.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
@@ -137,24 +136,29 @@ module.exports = class AccessToken {
             });
     }
 
-    createAccessToken() {
+    create(wskey, user) {
 
         const context = this;
+
+        this.wskey = wskey;
+        this.user = user ? user : new User();
+
         let accessTokenURL = context.buildAccessTokenURL();
+
         return context.requestAccessToken(accessTokenURL)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
-                context.params.accessToken = jsonResponse["access_token"];
-                context.params.expiresAt = jsonResponse["expires_at"];
-                context.params.errorCode = jsonResponse["error_code"];
-                context.params.contextInstitutionId = jsonResponse["context_institution_id"];
-                context.params.tokenType = jsonResponse["token_type"];
-                context.params.expiresIn = jsonResponse["expires_in"];
-                context.params.user.principalId = jsonResponse["principalID"];
-                context.params.user.principalIdns = jsonResponse["principalIDNS"];
-                context.params.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
+                context.accessToken = jsonResponse["access_token"];
+                context.expiresAt = jsonResponse["expires_at"];
+                context.errorCode = jsonResponse["error_code"];
+                context.contextInstitutionID = jsonResponse["context_institution_id"];
+                context.tokenType = jsonResponse["token_type"];
+                context.expiresIn = jsonResponse["expires_in"];
+                context.user.principalID = jsonResponse["principalID"];
+                context.user.principalIDNS = jsonResponse["principalIDNS"];
+                context.user.authenticatingInstitutionID = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
-                    context.params.refreshToken = new context.RefreshToken({
+                    context.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
                         expiresIn: jsonResponse["refresh_token_expires_in"],
                         expiresAt: jsonResponse["refresh_token_expires_at"]
@@ -172,7 +176,7 @@ module.exports = class AccessToken {
             return context.wskey.getAuthorizationHeader({
                 method: "POST",
                 url: accessTokenURL,
-                user: context.params.user
+                user: context.user
             }).then(function (authorization) {
                 const options = {
                     "url": accessTokenURL,
@@ -200,23 +204,23 @@ module.exports = class AccessToken {
         const Config = require("./config.js");
         const config = new Config();
 
-        let accessToken = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.params.grantType;
+        let accessToken = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
 
-        switch (this.params.grantType) {
+        switch (this.grantType) {
             case "refresh_token":
-                accessToken += "&refresh_token=" + this.params.refreshToken.refreshToken;
+                accessToken += "&refresh_token=" + this.refreshToken.refreshToken;
                 break;
             case "authorization_code":
-                accessToken += "&code=" + this.params.authorizationCode
-                    + "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
-                    + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
-                    + "&redirect_uri=" + this.wskey.authParams.redirectUri;
+                accessToken += "&code=" + this.code
+                    + "&authenticatingInstitutionID=" + this.user.authenticatingInstitutionID
+                    + "&contextInstitutionID=" + this.wskey.contextInstitutionID
+                    + "&redirect_uri=" + this.wskey.redirectUri;
                 break;
             case "client_credentials":
                 accessToken +=
-                    "&authenticatingInstitutionId=" + this.params.user.authenticatingInstitutionId
-                    + "&contextInstitutionId=" + this.wskey.authParams.contextInstitutionId
-                    + "&scope=" + Util.normalizeScope(this.wskey.authParams.scope);
+                    "&authenticatingInstitutionID=" + this.user.authenticatingInstitutionID
+                    + "&contextInstitutionID=" + this.wskey.contextInstitutionID
+                    + "&scope=" + Util.normalizeScope(this.wskey.services);
                 break;
             default:
                 accessToken = null;

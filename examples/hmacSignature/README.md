@@ -22,10 +22,10 @@ npm install
 cd src
 ```
 Edit bibRecord.js and define your authentication parameters.
-* clientId
+* clientID
 * secret
-* principalId
-* principalIdns
+* principalID
+* principalIDNS
 * context and authentication institution ID's
 
 Run the example:

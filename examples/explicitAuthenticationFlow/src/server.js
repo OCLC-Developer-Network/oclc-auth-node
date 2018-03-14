@@ -13,16 +13,16 @@ const rp = require("request-promise-native");
 // Authentication parameters -------------------------------------------------------------------------------------------
 
 const wskey = new Wskey({
-    "clientId": "{your clientId}",
+    "clientID": "{your clientID}",
     "secret": "{your secret}",
-    "contextInstitutionId": "{your institution ID}",
+    "contextInstitutionID": "{your institution ID}",
     "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
     "scope": ["WorldCatMetadataAPI", "refresh_token"]
 });
 
 let user = new User({
-    "authenticatingInstitutionId": "{your institution ID}"
+    "authenticatingInstitutionID": "{your institution ID}"
 });
 
 let accessToken = new AccessToken({

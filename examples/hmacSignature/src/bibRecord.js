@@ -7,50 +7,32 @@ const Wskey = require("nodeauth/src/Wskey");
 const User = require("nodeauth/src/user");
 const rp = require("request-promise-native");
 
-const wskey = new Wskey({
-    clientId: "{your clientId}",
-    secret: "{your secret}",
-    contextInstitutionId: "{your institution ID}"
+const user = new User({
+    principalID: "{your principal ID}",
+    principalIDNS: "{your principal IDNS}",
+    authenticatingInstitutionID: "{your institution ID}"
 });
 
-const user = new User({
-    principalId: "{your principal ID}",
-    principalIdns: "{your principal IDNS}",
-    authenticatingInstitutionId: "{your institution ID}"
-});
+const wskey = new Wskey("{your clientID}", "{your secret}",
+    {
+        contextInstitutionID: "{your institution ID}",
+        user: user
+    }
+);
 
 // Construct a promise to retrieve a bib record
 const getBibRecord = function (oclcNumber) {
 
     const url = `https://worldcat.org/bib/data/${oclcNumber}`;
 
-    // Step 1 - calculate the authorization header
-    return wskey.getAuthorizationHeader({
-        user: user,
-        method: "GET",
-        url: url
-    })
-
-        .then(function (authorizationHeader) {
-
-            // Step 2 - use the authorization header to request the bibliographic record from the
-            //          Worldcat Metadata API Bibliographic Resource
-            return rp({
-                uri: url,
-                headers: {
-                    "Accept": "application/atom+json",
-                    "Authorization": authorizationHeader
-                },
-                json: true
-            });
-        })
-
-        .catch(function (err) {
-            console.log("\n*** Error calculating the authorization header.\n");
-            console.log(err.name + "  " + err.statusCode);
-            console.log("n" + err.message.replace(/\</g, "\n<").replace(/&apos;/g, "'").replace(/&quot;/g, '"') + "\n");
-            return (err)
-        })
+    return rp({
+        uri: url,
+        headers: {
+            "Accept": "application/atom+json",
+            "Authorization": wskey.getHMACSignature("GET", url)
+        },
+        json: true
+    });
 };
 
 // Execute the promise to retrieve the bibliographic record for
