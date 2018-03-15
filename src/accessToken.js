@@ -28,7 +28,7 @@ module.exports = class AccessToken {
     }
 
     getValue(autoRefresh) {
-        let context = this
+        let context = this;
 
         if (autoRefresh && this.isExpired()) {
             if (this.refreshToken.isExpired()) {
@@ -38,7 +38,7 @@ module.exports = class AccessToken {
             }
         } else {
             return new Promise(function (resolve) {
-                resolve(context.accessTokenString);
+                resolve(context);
             })
         }
     }
@@ -106,24 +106,17 @@ module.exports = class AccessToken {
         return true;
     }
 
-    isRefreshTokenExpired() {
-        if (this.Util.scopeContainsRefreshToken(this.getScope())
-            && this.getValue() && this.refreshToken && this.refreshToken.getValue()) {
-            return new Date(this.refreshToken.expiresAt) - new Date() <= 0;
-        }
-        return true;
-    }
-
     refresh() {
         const context = this;
 
-        let authorization = this.Wskey.getHMACSignature("POST", this.accessTokenUrl, {user: this.user});
-
         let newAccessToken = new AccessToken("refresh_token", {
             wskey: this.wskey,
-            refreshToken: this.refreshToken
+            user: this.user,
         });
-        return newAccessToken.requestAccessToken(authorization, context.accessTokenUrl)
+
+        let authorization = this.Wskey.getHMACSignature("POST", newAccessToken.accessTokenUrl, {user: newAccessToken.user});
+
+        return newAccessToken.requestAccessToken(authorization, newAccessToken.accessTokenUrl)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
                 newAccessToken.accessToken = jsonResponse["access_token"];

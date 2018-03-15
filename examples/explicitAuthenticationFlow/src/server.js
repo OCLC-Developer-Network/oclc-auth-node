@@ -39,7 +39,7 @@ app.listen(port, function () {
     console.log("server listening on port " + port);
 });
 
-// Serve the main page
+// ---- Serve the main page --------------------------------------------------------------------------------------------
 app.get("/", function (req, res) {
 
     const context = this;
@@ -54,7 +54,7 @@ app.get("/", function (req, res) {
     });
 });
 
-// Sign in
+// ---- Sign in --------------------------------------------------------------------------------------------------------
 app.get("/login", function (req, res) {
 
     let context = this;
@@ -84,30 +84,42 @@ app.get(redirectPath, function (req, res) {
     res.redirect("/login");
 });
 
-// Get a bib record
+// ---- Get a bib record -----------------------------------------------------------------------------------------------
 app.get("/bibRecord", function (req, res) {
 
-    if (!this.accessToken.getAccessTokenString()) {
+    const context = this;
+    const oclcnumber = req.query.oclcnumber;
+
+    // If no access token exists, send the user back home.
+    if (!this.accessToken) {
         res.redirect("/");
+    } else {
+
+        // Get the current token, or a refreshed token if necessary
+        this.accessToken.getValue(true)
+
+            .then(function (accessToken) {
+                context.accessToken = accessToken;
+                rp({
+                    url: `https://worldcat.org/bib/data/${oclcnumber}`,
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/atom+json",
+                        "Authorization": `Bearer ${context.accessToken.getAccessTokenString()}`
+                    },
+                    json: true
+                })
+                    .then(function (data) {
+                        bibRecord = data;
+                        res.redirect("/");
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        res.redirect("/");
+                    });
+            })
+            .catch(function (err) {
+                console.log(err)
+            });
     }
-
-    oclcnumber = req.query.oclcnumber;
-
-    rp({
-        url: `https://worldcat.org/bib/data/${oclcnumber}`,
-        method: "GET",
-        headers: {
-            "Accept": "application/atom+json",
-            "Authorization": `Bearer ${this.accessToken.getAccessTokenString()}`
-        },
-        json: true
-    })
-        .then(function (data) {
-            bibRecord = data;
-            res.redirect("/");
-        })
-        .catch(function (err) {
-            console.log(err);
-            res.redirect("/");
-        });
 });
