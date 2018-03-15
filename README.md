@@ -57,7 +57,7 @@ For an example of Client Credentials Grant, go to ```examples/clientCredentialsG
 | Object| usage / options | Notes  |
 |-------|-----------------|--------|
 | Wskey | <pre>const Wskey = require("nodeauth/src/Wskey")</pre> | Wskey Class|
-| wskey | <pre>wskey = new Wskey({<br>"clientID": your web services public client ID,<br>"secret": your web services key secret,<br>"contextInstitutionID": ID of the institution to get data against,<br>"redirectUri": for tokens, where to land back after authenticating<br>"responseType": "code",<br>"scope": \["scope1", "scope2", ... "refresh_token"]<br>})</pre> | WSKey class instance. |
+| wskey | <pre>wskey = new Wskey({<br>"clientID": your web services public client ID,<br>"secret": your web services key secret,<br>"contextInstitutionId": ID of the institution to get data against,<br>"redirectUri": for tokens, where to land back after authenticating<br>"responseType": "code",<br>"scope": \["scope1", "scope2", ... "refresh_token"]<br>})</pre> | WSKey class instance. |
 | getAuthorizationHeader | <pre>wskey.getAuthorizationHeader({<br>    "method": The request method (GET, POST, etc)<br>    "url": The url to be called<br>    "user": The User object<br>})<br>.then( function(authorizationHeader){} )<br>.catch( function(err){} )</pre>| Returns a Promise that resolves to the Authorization Header or rejects with an error message. |
 | getClientID | wskey.getClientID() | Returns the clientID string |
 | setClientID | wskey.setClientID(string) | Sets the client Id |
@@ -77,7 +77,7 @@ For an example of Client Credentials Grant, go to ```examples/clientCredentialsG
 | Object| usage / options | Notes  |
 |-------|-----------------|--------|
 |User|<pre>const User = require("nodeauth/src/User")</pre> | User class.|
-|user|<pre>let user = new User({<br>    principalID: "your Principal ID"<br>    principalIDNS: "your Principal IDNS"<br>    authenticatingInstitutionID:<br>        "your Authenticating Institution ID"<br>})</pre>| User class instance.|
+|user|<pre>let user = new User({<br>    principalID: "your Principal ID"<br>    principalIDNS: "your Principal IDNS"<br>    authenticatingInstitutionId:<br>        "your Authenticating Institution ID"<br>})</pre>| User class instance.|
 |getPrincipalID | user.getPrincipalID() | gets the Principal ID|
 |setPrincipalID | user.setPrincipalID(string)| sets the Principal ID |
 |getPrincipalIDNS|user.getPrincipalIDNS()|gets the Principal IDNS|

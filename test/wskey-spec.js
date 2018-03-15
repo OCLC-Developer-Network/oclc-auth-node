@@ -6,14 +6,14 @@ describe("HMAC Hashing", function () {
     const user = new User({
         "principalID": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
         "principalIDNS": "urn:oclc:wms:da",
-        "authenticatingInstitutionID": "128807"
+        "authenticatingInstitutionId": "128807"
     });
 
     const wskey = new Wskey(
         "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
         "eUK5Qz9AdsZQrCPRRliBzQ==",
         {
-            "contextInstitutionID": "128807",
+            "contextInstitutionId": "128807",
             "redirectUri": "http://localhost/auth/",
             "services": ["WMS_CIRCULATION", "WMS_NCIP"],
             "user": user
@@ -39,7 +39,7 @@ describe("HMAC Hashing", function () {
         const authenticatingInstitutionId = "128807";
         const contextInstitutionId = "60000";
 
-        const expectedLoginUrl = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionID=128807&contextInstitutionID=60000&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP";
+        const expectedLoginUrl = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=60000&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP";
 
         expect(wskey.getLoginURL(authenticatingInstitutionId, contextInstitutionId)).toEqual(expectedLoginUrl);
     });

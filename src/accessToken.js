@@ -5,37 +5,40 @@ module.exports = class AccessToken {
         this.RefreshToken = require("./refreshToken.js");
         this.User = require("./user.js");
         this.Util = require("./util.js");
+        //this.Wskey = require("./wskey.js");
 
         this.grantType = grantType;
         this.wskey = options ? options.wskey : null;
         this.scope = options ? options.scope : null;
-        this.contextInstitutionID = options ? options.contextInstitutionID : null;
+        this.contextInstitutionId = options ? options.contextInstitutionId : null;
         this.redirectUri = options ? options.redirectUri : null;
         this.code = options ? options.code : null;
         this.refreshToken = options ? options.refreshToken : null;
         this.accessTokenString = options ? options.accessTokenString : null;
         this.expiresAt = options ? options.expiresAt : null;
         this.user = options ? options.user : null;
+
+        this.accessTokenUrl = this.buildAccessTokenURL();
     };
 
-    getAccessToken() {
-        let context = this;
+    getAccessTokenString() {
+        return this.accessTokenString;
+    }
 
-        if (this.isExpired()) {
-            if (this.refreshToken.getValue()) {
-                return this.refresh();
+    getValue(autoRefresh) {
+        let context = this
+
+        if (autoRefresh && this.isExpired()) {
+            if (this.refreshToken.isExpired()) {
+                console.log("Sorry you do not have a valid Access Token");
             } else {
-                return this.createAccessToken();
+                return this.refresh();
             }
         } else {
             return new Promise(function (resolve) {
-                resolve(context);
+                resolve(context.accessTokenString);
             })
         }
-    }
-
-    getValue() {
-        return this.accessTokenString;
     }
 
     getCode() {
@@ -47,7 +50,7 @@ module.exports = class AccessToken {
     }
 
     getContextInstitutionID() {
-        return this.contextInstitutionID;
+        return this.contextInstitutionId;
     }
 
     getErrorCode() {
@@ -90,6 +93,10 @@ module.exports = class AccessToken {
         return this.scope;
     }
 
+    getAccessTokenUrl() {
+        return this.accessTokenUrl;
+    }
+
     isExpired() {
         if (this.expiresAt) {
             return new Date(this.expiresAt) - new Date() <= 0;
@@ -108,23 +115,24 @@ module.exports = class AccessToken {
     refresh() {
         const context = this;
 
+        let authorization = this.Wskey.getHMACSignature("POST", this.accessTokenUrl, {user: this.user});
+
         let newAccessToken = new AccessToken("refresh_token", {
             wskey: this.wskey,
             refreshToken: this.refreshToken
         });
-        const accessTokenURL = newAccessToken.buildAccessTokenURL();
-        return newAccessToken.requestAccessToken(accessTokenURL)
+        return newAccessToken.requestAccessToken(authorization, context.accessTokenUrl)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
                 newAccessToken.accessToken = jsonResponse["access_token"];
                 newAccessToken.expiresAt = jsonResponse["expires_at"];
                 newAccessToken.errorCode = jsonResponse["error_code"];
-                newAccessToken.contextInstitutionID = jsonResponse["context_institution_id"];
+                newAccessToken.contextInstitutionId = jsonResponse["context_institution_id"];
                 newAccessToken.tokenType = jsonResponse["token_type"];
                 newAccessToken.expiresIn = jsonResponse["expires_in"];
                 newAccessToken.user.principalID = jsonResponse["principalID"];
                 newAccessToken.user.principalIDNS = jsonResponse["principalIDNS"];
-                newAccessToken.user.authenticatingInstitutionID = jsonResponse["authenticating_institution_id"];
+                newAccessToken.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
                     newAccessToken.params.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
@@ -143,20 +151,20 @@ module.exports = class AccessToken {
         this.wskey = wskey;
         this.user = user ? user : new User();
 
-        let accessTokenURL = context.buildAccessTokenURL();
+        let authorization = this.wskey.getHMACSignature("POST", this.accessTokenUrl, {user: this.user});
 
-        return context.requestAccessToken(accessTokenURL)
+        return context.requestAccessToken(authorization, context.accessTokenUrl)
             .then(function (response) {
                 let jsonResponse = JSON.parse(response);
-                context.accessToken = jsonResponse["access_token"];
+                context.accessTokenString = jsonResponse["access_token"];
                 context.expiresAt = jsonResponse["expires_at"];
                 context.errorCode = jsonResponse["error_code"];
-                context.contextInstitutionID = jsonResponse["context_institution_id"];
+                context.contextInstitutionId = jsonResponse["context_institution_id"];
                 context.tokenType = jsonResponse["token_type"];
                 context.expiresIn = jsonResponse["expires_in"];
                 context.user.principalID = jsonResponse["principalID"];
                 context.user.principalIDNS = jsonResponse["principalIDNS"];
-                context.user.authenticatingInstitutionID = jsonResponse["authenticating_institution_id"];
+                context.user.authenticatingInstitutionId = jsonResponse["authenticating_institution_id"];
                 if (jsonResponse["refresh_token"]) {
                     context.refreshToken = new context.RefreshToken({
                         refreshToken: jsonResponse["refresh_token"],
@@ -168,33 +176,23 @@ module.exports = class AccessToken {
             });
     }
 
-    requestAccessToken(accessTokenURL) {
-
-        let context = this;
+    requestAccessToken(authorization, url) {
 
         return new Promise(function (resolve, reject) {
-            return context.wskey.getAuthorizationHeader({
-                method: "POST",
-                url: accessTokenURL,
-                user: context.user
-            }).then(function (authorization) {
-                const options = {
-                    "url": accessTokenURL,
-                    "method": "POST",
-                    "headers": {
-                        "authorization": authorization
-                    }
-                };
-                const rp = require('request-promise-native');
-                return rp(options)
-                    .then(function (response, body) {
-                        resolve(response);
-                    }).catch(function (err) {
-                        reject(err);
-                    });
-            }).catch(function (err) {
-                reject(err);
-            });
+            const options = {
+                "url": url,
+                "method": "POST",
+                "headers": {
+                    "authorization": authorization
+                }
+            };
+            const rp = require('request-promise-native');
+            return rp(options)
+                .then(function (response, body) {
+                    resolve(response);
+                }).catch(function (err) {
+                    reject(err);
+                });
         })
     }
 
@@ -204,27 +202,28 @@ module.exports = class AccessToken {
         const Config = require("./config.js");
         const config = new Config();
 
-        let accessToken = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
+        let accessTokenUrl = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
 
         switch (this.grantType) {
             case "refresh_token":
-                accessToken += "&refresh_token=" + this.refreshToken.refreshToken;
+                accessTokenUrl += "&refresh_token=" + this.refreshToken.refreshToken;
                 break;
             case "authorization_code":
-                accessToken += "&code=" + this.code
-                    + "&authenticatingInstitutionID=" + this.user.authenticatingInstitutionID
-                    + "&contextInstitutionID=" + this.wskey.contextInstitutionID
+                accessTokenUrl += "&code=" + this.code
+                    + "&authenticatingInstitutionId=" + this.user.authenticatingInstitutionId
+                    + "&contextInstitutionId=" + this.wskey.contextInstitutionId
                     + "&redirect_uri=" + this.wskey.redirectUri;
                 break;
             case "client_credentials":
-                accessToken +=
-                    "&authenticatingInstitutionID=" + this.user.authenticatingInstitutionID
-                    + "&contextInstitutionID=" + this.wskey.contextInstitutionID
+                accessTokenUrl +=
+                    "&authenticatingInstitutionId=" + this.user.authenticatingInstitutionId
+                    + "&contextInstitutionId=" + this.wskey.contextInstitutionId
                     + "&scope=" + Util.normalizeScope(this.wskey.services);
                 break;
             default:
-                accessToken = null;
+                accessTokenUrl = null;
         }
-        return accessToken;
+
+        return accessTokenUrl;
     }
 };

@@ -9,7 +9,7 @@ module.exports = class Wskey {
         this.redirectUri = options && options.redirectUri ? options.redirectUri : null;
         this.user = options && options.user ? options.user : null;
         this.bodyHash = options && options.bodyHash && options.bodyHash ? options.bodyHash : "";
-        this.contextInstitutionID = options && options.contextInstitutionID ? options.contextInstitutionID: null;
+        this.contextInstitutionId = options && options.contextInstitutionId ? options.contextInstitutionId : null;
     }
 
     getKey() {
@@ -29,35 +29,56 @@ module.exports = class Wskey {
     }
 
     getContextInstitutionId() {
-        return this.contextInstitutionID;
+        return this.contextInstitutionId;
     }
 
     getSignedRequest() {
         return this.signedRequest;
     }
 
-    getLoginURL(authenticatingInstitutionID, contextInstitutionID) {
+    getLoginURL(authenticatingInstitutionId, contextInstitutionId) {
 
         const AuthCode = require("./authCode.js");
 
         let authCode = new AuthCode({
             clientID: this.key,
-            authenticatingInstitutionID: authenticatingInstitutionID,
-            contextInstitutionID: contextInstitutionID,
+            authenticatingInstitutionId: authenticatingInstitutionId,
+            contextInstitutionId: contextInstitutionId,
             redirectUri: this.redirectUri,
             scope: this.services
         });
         return authCode.getLoginUrl();
     }
 
-    getAccessTokenWithAuthCode(authCode, authenticatingInstitutionID, contextInstitutionID) {
-        // todo
+    getAccessTokenWithAuthCode(authCode, authenticatingInstitutionId, contextInstitutionId) {
+
+        const options = {
+            authenticatingInstitutionId: authenticatingInstitutionId,
+            contextInstitutionId: contextInstitutionId,
+            code: contextInstitutionId,
+            redirectUri: this.redirectUri
+        };
+
+        this.getAccessToken("authorization_code", options);
+
+
     }
 
-    getAccessTokenWithClientCredentials(authenticatingInstitutionID, contextInstitutionID, user) {
+    getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user) {
 
-        this.user = user ? user : null;
-        // todo
+        const options = {
+            authenticatingInstitutionId: authenticatingInstitutionId,
+            contextInstitutionId: contextInstitutionId,
+            scope: this.services
+        };
+
+        return this.getAccessToken("client_credentials", options, user);
+    }
+
+    getAccessToken(grantType, options, user) {
+        const AccessToken = require("./accessToken.js");
+        let accessToken = new AccessToken(grantType, options);
+        return accessToken.create(this, user);
     }
 
     getHMACSignature(method, request_url, options) {
@@ -152,10 +173,5 @@ module.exports = class Wskey {
 
     addAuthParams(user, authParams) {
         //todo - not needed?
-    }
-
-    getAccessToken(grantType, options, user) {
-        this.user = user ? user : null;
-        //todo
     }
 };

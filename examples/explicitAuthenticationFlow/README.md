@@ -32,14 +32,14 @@ To enable refresh tokens, add ```"refresh_token"``` to the list of scopes. [Refr
 const wskey = new Wskey({
     "clientID": "{your clientID}",
     "secret": "{your secret}",
-    "contextInstitutionID": "{your institution ID}",
+    "contextInstitutionId": "{your institution ID}",
     "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
     "scope": ["{scope 1}","{scope 2}","..."]
 });
 
 let user = new User({
-    "authenticatingInstitutionID": "{your institution ID}"
+    "authenticatingInstitutionId": "{your institution ID}"
 });
 
 let accessToken = new AccessToken({

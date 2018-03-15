@@ -30,7 +30,7 @@ Note that in this example, the user is running on port 8000 on localhost, and th
 const wskey = new Wskey({
     "clientID": "{your clientID}",
     "secret": "{your secret}",
-    "contextInstitutionID": "{your institution ID}",
+    "contextInstitutionId": "{your institution ID}",
     "redirectUri": "http://localhost:8000/auth/",
     "responseType": "code",
     "scope": ["{scope 1}","{scope 2}","..."]
@@ -39,7 +39,7 @@ const wskey = new Wskey({
 const user = new User({
     principalID: "{your principal ID}",
     principalIDNS: "{your principal IDNS}",
-    authenticatingInstitutionID: "{your institution ID}"
+    authenticatingInstitutionId: "{your institution ID}"
 });
 
 let accessToken = new AccessToken({

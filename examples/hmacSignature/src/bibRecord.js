@@ -10,12 +10,12 @@ const rp = require("request-promise-native");
 const user = new User({
     principalID: "{your principal ID}",
     principalIDNS: "{your principal IDNS}",
-    authenticatingInstitutionID: "{your institution ID}"
+    authenticatingInstitutionId: "{your institution ID}"
 });
 
 const wskey = new Wskey("{your clientID}", "{your secret}",
     {
-        contextInstitutionID: "{your institution ID}",
+        contextInstitutionId: "{your institution ID}",
         user: user
     }
 );

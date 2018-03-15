@@ -6,13 +6,13 @@ const User = require("../src/user.js");
 describe("Access Token", function () {
 
     const user = new User({
-        "authenticatingInstitutionID": "128807",
+        "authenticatingInstitutionId": "128807",
     });
 
     const wskey = new Wskey("7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
         "eUK5Qz9AdsZQrCPRRliBzQ==",
         {
-            "contextInstitutionID": "128807",
+            "contextInstitutionId": "128807",
             "redirectUri": "http://localhost/auth/",
             "responseType": "code",
             "services": ["WMS_CIRCULATION", "WMS_NCIP"],
@@ -48,8 +48,8 @@ describe("Access Token", function () {
             expectedAccessTokenURL = "https://authn.sd00.worldcat.org/oauth2/accessToken?" +
                 "grant_type=authorization_code" +
                 "&code=auth_Ztm8UjLSKpP5V0Gskgev3v2G21sfGx18vxtA" +
-                "&authenticatingInstitutionID=128807" +
-                "&contextInstitutionID=128807" +
+                "&authenticatingInstitutionId=128807" +
+                "&contextInstitutionId=128807" +
                 "&redirect_uri=http://localhost/auth/";
 
         expect(accessToken.buildAccessTokenURL()).toEqual(expectedAccessTokenURL);
@@ -63,8 +63,8 @@ describe("Access Token", function () {
             }),
             expectedAccessTokenURL = "https://authn.sd00.worldcat.org/oauth2/accessToken?" +
                 "grant_type=client_credentials" +
-                "&authenticatingInstitutionID=128807" +
-                "&contextInstitutionID=128807" +
+                "&authenticatingInstitutionId=128807" +
+                "&contextInstitutionId=128807" +
                 "&scope=WMS_CIRCULATION WMS_NCIP";
 
         expect(accessToken.buildAccessTokenURL()).toEqual(expectedAccessTokenURL);
@@ -101,7 +101,7 @@ describe("Access Token", function () {
         //const wskey = new Wskey({
         //    "clientID": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
         //    "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
-        //    "contextInstitutionID": "128807",
+        //    "contextInstitutionId": "128807",
         //    "redirectUri": "http://localhost/auth/",
         //    "responseType": "code",
         //    "scope": ["WMS_CIRCULATION", "WMS_NCIP", "refresh_token"]

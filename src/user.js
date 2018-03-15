@@ -3,7 +3,7 @@ module.exports = class User {
     constructor(options) {
         this.principalID = options && options.principalID ? options.principalID : null;
         this.principalIDNS = options && options.principalIDNS ? options.principalIDNS : null;
-        this.authenticatingInstitutionID = options && options.authenticatingInstitutionID ? options.authenticatingInstitutionID : null;
+        this.authenticatingInstitutionId = options && options.authenticatingInstitutionId ? options.authenticatingInstitutionId : null;
     };
 
     getPrincipalID() {
@@ -23,10 +23,10 @@ module.exports = class User {
     }
 
     getAuthenticatingInstitutionID() {
-        return this.authenticatingInstitutionID;
+        return this.authenticatingInstitutionId;
     }
 
-    setAuthenticatingInstitutionID(authenticatingInstitutionID) {
-        this.authenticatingInstitutionID = authenticatingInstitutionID;
+    setAuthenticatingInstitutionID(authenticatingInstitutionId) {
+        this.authenticatingInstitutionId = authenticatingInstitutionId;
     }
 };

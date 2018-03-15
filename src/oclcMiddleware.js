@@ -6,8 +6,8 @@ module.exports = class User {
         const AuthCode = require("./authCode.js");
         const authCode = new AuthCode({
             clientID:options.wskey.getClientID(),
-            authenticatingInstitutionID:options.user.getAuthenticatingInstitutionID(),
-            contextInstitutionID:options.wskey.getContextInstitutionID(),
+            authenticatingInstitutionId:options.user.getAuthenticatingInstitutionID(),
+            contextInstitutionId:options.wskey.getContextInstitutionID(),
             scope: options.wskey.getScope(),
             redirectUri: options.wskey.getRedirectUri()
         });
