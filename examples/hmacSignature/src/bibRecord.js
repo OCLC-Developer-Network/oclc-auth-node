@@ -8,14 +8,14 @@ const User = require("nodeauth/src/user");
 const rp = require("request-promise-native");
 
 const user = new User({
-    principalID: "{your principal ID}",
-    principalIDNS: "{your principal IDNS}",
-    authenticatingInstitutionId: "{your institution ID}"
+    principalID: "8eaa9f92-3951-431c-975a-d7df26b8d131",
+    principalIDNS: "urn:oclc:wms:da",
+    authenticatingInstitutionId: "128807"
 });
 
-const wskey = new Wskey("{your clientID}", "{your secret}",
+const wskey = new Wskey("aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM", "EyZfIJdGQXeatxQOjdkQZw==",
     {
-        contextInstitutionId: "{your institution ID}",
+        contextInstitutionId: "128807",
         user: user
     }
 );

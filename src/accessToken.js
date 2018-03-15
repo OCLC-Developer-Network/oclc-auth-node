@@ -11,12 +11,14 @@ module.exports = class AccessToken {
         this.wskey = options ? options.wskey : null;
         this.scope = options ? options.scope : null;
         this.contextInstitutionId = options ? options.contextInstitutionId : null;
+        this.authenticatingInstitutionId = options ? options.authenticatingInstitutionId : null;
         this.redirectUri = options ? options.redirectUri : null;
         this.code = options ? options.code : null;
         this.refreshToken = options ? options.refreshToken : null;
         this.accessTokenString = options ? options.accessTokenString : null;
         this.expiresAt = options ? options.expiresAt : null;
         this.user = options ? options.user : null;
+        this.services = options ? options.services : null;
 
         this.accessTokenUrl = this.buildAccessTokenURL();
     };
@@ -149,12 +151,13 @@ module.exports = class AccessToken {
         const context = this;
 
         this.wskey = wskey;
-        this.user = user ? user : new User();
+        this.user = user ? user : new this.User();
 
         let authorization = this.wskey.getHMACSignature("POST", this.accessTokenUrl, {user: this.user});
 
-        return context.requestAccessToken(authorization, context.accessTokenUrl)
+        return this.requestAccessToken(authorization, this.accessTokenUrl)
             .then(function (response) {
+
                 let jsonResponse = JSON.parse(response);
                 context.accessTokenString = jsonResponse["access_token"];
                 context.expiresAt = jsonResponse["expires_at"];
@@ -210,15 +213,15 @@ module.exports = class AccessToken {
                 break;
             case "authorization_code":
                 accessTokenUrl += "&code=" + this.code
-                    + "&authenticatingInstitutionId=" + this.user.authenticatingInstitutionId
-                    + "&contextInstitutionId=" + this.wskey.contextInstitutionId
-                    + "&redirect_uri=" + this.wskey.redirectUri;
+                    + "&authenticatingInstitutionId=" + this.authenticatingInstitutionId
+                    + "&contextInstitutionId=" + this.contextInstitutionId
+                    + "&redirect_uri=" + this.redirectUri;
                 break;
             case "client_credentials":
                 accessTokenUrl +=
-                    "&authenticatingInstitutionId=" + this.user.authenticatingInstitutionId
-                    + "&contextInstitutionId=" + this.wskey.contextInstitutionId
-                    + "&scope=" + Util.normalizeScope(this.wskey.services);
+                    "&authenticatingInstitutionId=" + this.authenticatingInstitutionId
+                    + "&contextInstitutionId=" + this.contextInstitutionId
+                    + "&scope=" + Util.normalizeScope(this.services);
                 break;
             default:
                 accessTokenUrl = null;

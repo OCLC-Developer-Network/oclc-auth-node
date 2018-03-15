@@ -1,7 +1,7 @@
 module.exports = class AuthCode {
 
     constructor(options) {
-        this.clientID = options.clientID;
+        this.client_id = options.client_id;
         this.authenticatingInstitutionId = options.authenticatingInstitutionId;
         this.contextInstitutionId = options.contextInstitutionId;
         this.redirectUri = options.redirectUri;
@@ -13,14 +13,9 @@ module.exports = class AuthCode {
         const Util = require("./util.js");
         const Config = require("./config.js");
         const config = new Config();
-        //const scope = options.wskey.authParams.scope;
-
-        //if (options.useRefreshTokens && !Util.scopeContainsRefreshToken(scope)) {
-        //    scope.push("refresh_token");
-        //}
 
         return config.AUTHORIZATION_SERVER + "/authorizeCode?" +
-            "client_id=" + this.clientID +
+            "client_id=" + this.client_id +
             "&authenticatingInstitutionId=" + this.authenticatingInstitutionId +
             "&contextInstitutionId=" + this.contextInstitutionId +
             "&redirect_uri=" + encodeURIComponent(this.redirectUri) +

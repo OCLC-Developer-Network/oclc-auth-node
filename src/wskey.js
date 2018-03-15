@@ -2,6 +2,9 @@ module.exports = class Wskey {
 
     constructor(key, secret, options) {
 
+        this.AuthCode = require("./authCode.js");
+        this.User = require("./user.js");
+
         this.key = key;
         this.secret = secret;
 
@@ -38,10 +41,8 @@ module.exports = class Wskey {
 
     getLoginURL(authenticatingInstitutionId, contextInstitutionId) {
 
-        const AuthCode = require("./authCode.js");
-
-        let authCode = new AuthCode({
-            clientID: this.key,
+        let authCode = new this.AuthCode({
+            client_id: this.key,
             authenticatingInstitutionId: authenticatingInstitutionId,
             contextInstitutionId: contextInstitutionId,
             redirectUri: this.redirectUri,
@@ -55,13 +56,11 @@ module.exports = class Wskey {
         const options = {
             authenticatingInstitutionId: authenticatingInstitutionId,
             contextInstitutionId: contextInstitutionId,
-            code: contextInstitutionId,
+            code: authCode,
             redirectUri: this.redirectUri
         };
 
-        this.getAccessToken("authorization_code", options);
-
-
+        return this.getAccessToken("authorization_code", options);
     }
 
     getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user) {
@@ -69,15 +68,21 @@ module.exports = class Wskey {
         const options = {
             authenticatingInstitutionId: authenticatingInstitutionId,
             contextInstitutionId: contextInstitutionId,
-            scope: this.services
+            services: this.services
         };
 
-        return this.getAccessToken("client_credentials", options, user);
+        this.user = user ? user : new this.User({});
+
+        this.user.authenticatingInstitutionId = this.user.authenticatingInstitutionId ?
+            this.user.authenticatingInstitutionId : authenticatingInstitutionId;
+
+        return this.getAccessToken("client_credentials", options, this.user);
     }
 
     getAccessToken(grantType, options, user) {
         const AccessToken = require("./accessToken.js");
         let accessToken = new AccessToken(grantType, options);
+
         return accessToken.create(this, user);
     }
 

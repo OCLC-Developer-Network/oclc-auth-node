@@ -3,33 +3,26 @@
  * @type {*|createApplication}
  */
 
-const express = require("express");
 const Wskey = require("nodeauth/src/Wskey");
-const AccessToken = require("nodeauth/src/accessToken");
 const User = require("nodeauth/src/user");
-const OCLCMiddleware = require("nodeauth/src/oclcMiddleware");
+
+const express = require("express");
 const rp = require("request-promise-native");
+const url = require("url");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
-const wskey = new Wskey({
-    "clientID": "{your clientID}",
-    "secret": "{your secret}",
-    "contextInstitutionId": "{your institution ID}",
-    "redirectUri": "http://localhost:8000/auth/",
-    "responseType": "code",
-    "scope": ["WorldCatMetadataAPI", "refresh_token"]
-});
+const authenticatingInstitutionId = "128807";
+const contextInstitutionId = "128807";
 
-let user = new User({
-    "authenticatingInstitutionId": "{your institution ID}"
-});
+const wskey = new Wskey("aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM", "EyZfIJdGQXeatxQOjdkQZw==",
+    {
+        "redirectUri": "http://localhost:8000/auth/",
+        "services": ["WorldCatMetadataAPI", "refresh_token"],
+    });
 
-let accessToken = new AccessToken({
-    wskey: wskey,
-    grantType: "authorization_code",
-    user: user
-});
+let authCode;
+let accessToken;
 
 const port = 8000; // should match the redirect URI configured on the wskey
 
@@ -46,42 +39,66 @@ app.listen(port, function () {
     console.log("server listening on port " + port);
 });
 
-// ---- Middleware -----------------------------------------------------------------------------------------------------
-
-app.use(OCLCMiddleware.authenticationManager({
-    homePath: "/",
-    authenticationPath: "/login",
-    port: port, // if omitted assumes 80 for http or 443 for https. We set it to 8000 in this example.
-    accessToken: accessToken,
-    user: user,
-    wskey: wskey,
-}));
-
 // Serve the main page
 app.get("/", function (req, res) {
+
+    const context = this;
+
     res.render("index", {
         pageTitle: "Explicit Authentication Flow",
-        token: accessToken.getValue() ? JSON.stringify(accessToken.params, null, 4) : 'Press "Sign In" to request an access token',
+        accessTokenString: context.accessToken && context.accessToken.getAccessTokenString() ?
+            context.accessToken.getAccessTokenString() : "Press button to get token.",
+        errorMessage: null,
         bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
         oclcnumber: oclcnumber
     });
 });
 
+// Sign in
+app.get("/login", function (req, res) {
+
+    let context = this;
+
+    if (authCode) {
+        wskey.getAccessTokenWithAuthCode(authCode, authenticatingInstitutionId, contextInstitutionId)
+            .then(function (accessToken) {
+                context.accessToken = accessToken;
+                res.redirect("/")
+            })
+    } else {
+        let redirectToAuthCodeLoginURL = '<html><head>'
+            + '<meta http-equiv="refresh" content="0; url='
+            + wskey.getLoginURL(authenticatingInstitutionId, contextInstitutionId)
+            + '" />' +
+            '</head></html>';
+        res.send(redirectToAuthCodeLoginURL);
+    }
+});
+
+// ---- Handle Redirect Uri --------------------------------------------------------------------------------------------
+
+let redirectPath = url.parse(wskey.getRedirectUri()).pathname;
+
+app.get(redirectPath, function (req, res) {
+    authCode = req.query.code;
+    res.redirect("/login");
+});
+
 // Get a bib record
 app.get("/bibRecord", function (req, res) {
 
-    if (!accessToken.getValue()) {
+    if (!this.accessToken.getAccessTokenString()) {
         res.redirect("/");
     }
 
-    oclcnumber = req.query.oclcnumber
+    oclcnumber = req.query.oclcnumber;
 
     rp({
         url: `https://worldcat.org/bib/data/${oclcnumber}`,
         method: "GET",
         headers: {
             "Accept": "application/atom+json",
-            "Authorization": `Bearer ${accessToken.getValue()}`
+            "Authorization": `Bearer ${this.accessToken.getAccessTokenString()}`
         },
         json: true
     })

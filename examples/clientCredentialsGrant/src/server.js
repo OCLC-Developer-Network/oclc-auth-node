@@ -3,33 +3,31 @@
  * @type {*|createApplication}
  */
 
-const express = require("express");
 const Wskey = require("nodeauth/src/Wskey");
-const AccessToken = require("nodeauth/src/accessToken");
 const User = require("nodeauth/src/user");
+
+const express = require("express");
 const rp = require("request-promise-native");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
+const authenticatingInstitutionId = "128807";
+const contextInstitutionId = "128807";
+
 const user = new User(
     {
-        principalID: "{your principal ID}",
-        principalIDNS: "{your principal IDNS}",
-        authenticatingInstitutionId: "{your institution ID}"
+        principalID: "8eaa9f92-3951-431c-975a-d7df26b8d131",
+        principalIDNS: "urn:oclc:wms:da",
     });
 
-const wskey = new Wskey("{your clientID}", "{your secret}",
+const wskey = new Wskey(
+    "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM",
+    "EyZfIJdGQXeatxQOjdkQZw==",
     {
-        services: ["WorldCatMetadataAPI"],
-        contextInstitutionId: "{your institution ID}",
-        user: user
+        services: ["WorldCatMetadataAPI"]
     });
 
-let accessToken = new AccessToken("client_credentials",
-    {
-        wskey: wskey,
-        user: user
-    });
+this.accessToken = null;
 
 const port = 8000; // should match the redirect URI configured on the wskey
 
@@ -46,42 +44,39 @@ app.listen(port, function () {
     console.log("server listening on port " + port);
 });
 
-// Serve the main page
+// ---- Serve the main page --------------------------------------------------------------------------------------------
 app.get("/", function (req, res) {
 
-    accessToken.getValue()
-        .then(function (accessTokenString) {
-            res.render("index", {
-                pageTitle: "Client Credentials Grant",
-                accessTokenString: accessToken.getAccessTokenString() ? accessTokenString : "Press button to get token.",
-                errorMessage: null,
-                bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
-                oclcnumber: oclcnumber
-            });
-        })
-        .catch(function (errorMessage) {
-            res.render("index", {
-                pageTitle: "Client Credentials Grant",
-                accessTokenString: "Press button to try again.",
-                errorMessage: errorMessage,
-                bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
-                oclcnumber: oclcnumber
-            });
-        });
+    const context = this;
+
+    res.render("index", {
+        pageTitle: "Client Credentials Grant",
+        accessTokenString: context.accessToken && context.accessToken.getAccessTokenString() ?
+            context.accessToken.getAccessTokenString() : "Press button to get token.",
+        errorMessage: null,
+        bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
+        oclcnumber: oclcnumber
+    });
 });
 
-// Sign in
+// ---- Handle authentication for CCG, just get a token and redirect back to the home page) ----------------------------
+
 app.get("/login", function (req, res) {
-    accessToken.create(wskey, user)
-        .then(function () {
+
+    const context = this;
+
+    wskey.getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user)
+
+        .then(function (accessToken) {
+            context.accessToken = accessToken;
             res.redirect("/")
         })
 });
 
-// Get a bib record
+// ---- Use the CCG token to get a bib record --------------------------------------------------------------------------
 app.get("/bibRecord", function (req, res) {
 
-    if (!accessToken.getValue()) {
+    if (!accessToken.getAccessTokenString()) {
         res.redirect("/");
     }
 
