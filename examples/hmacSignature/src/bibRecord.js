@@ -7,13 +7,13 @@ const axios = require("axios");
 const Wskey = require("nodeauth/src/Wskey");
 const User = require("nodeauth/src/user");
 
-const key = "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM";
-const secret = "EyZfIJdGQXeatxQOjdkQZw==";
+const key = "{your clientID}";
+const secret = "{your secret}";
 const wskey = new Wskey(key, secret);
 
-const authenticatingInstitutionId = "128807";
-const principalID = "8eaa9f92-3951-431c-975a-d7df26b8d131";
-const principalIDNS = "urn:oclc:wms:da";
+const authenticatingInstitutionId = "{your institution ID}";
+const principalID = "{your principal ID}";
+const principalIDNS = "{your principal IDNS}";
 const user = new User(authenticatingInstitutionId, principalID, principalIDNS);
 const options = {user: user};
 

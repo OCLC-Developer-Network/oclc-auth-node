@@ -12,10 +12,10 @@ const url = require("url");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
-const authenticatingInstitutionId = "128807";
-const contextInstitutionId = "128807";
+const authenticatingInstitutionId = "{your institution ID}";
+const contextInstitutionId = "{your institution ID}";
 
-const wskey = new Wskey("aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM", "EyZfIJdGQXeatxQOjdkQZw==",
+const wskey = new Wskey("{your clientID}", "{your secret}",
     {
         "redirectUri": "http://localhost:8000/auth/",
         "services": ["WorldCatMetadataAPI", "refresh_token"],
