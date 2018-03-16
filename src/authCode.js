@@ -1,11 +1,11 @@
 module.exports = class AuthCode {
 
-    constructor(options) {
-        this.client_id = options.client_id;
+    constructor(client_id, redirectUri, scope, options) {
+        this.clientID = client_id;
         this.authenticatingInstitutionId = options.authenticatingInstitutionId;
         this.contextInstitutionId = options.contextInstitutionId;
-        this.redirectUri = options.redirectUri;
-        this.scope = options.scope;
+        this.redirectUri = redirectUri;
+        this.scope = scope;
     }
 
     getLoginUrl() {
@@ -15,7 +15,7 @@ module.exports = class AuthCode {
         const config = new Config();
 
         return config.AUTHORIZATION_SERVER + "/authorizeCode?" +
-            "client_id=" + this.client_id +
+            "client_id=" + this.clientID +
             "&authenticatingInstitutionId=" + this.authenticatingInstitutionId +
             "&contextInstitutionId=" + this.contextInstitutionId +
             "&redirect_uri=" + encodeURIComponent(this.redirectUri) +

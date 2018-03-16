@@ -9,7 +9,7 @@
   "author": "campbelg@oclc.org",
   "license": "MIT",
   "dependencies": {
-    "nodeauth": "file:../../../oclc-auth-node",
-    "request-promise-native": "^1.0.5"
+    "axios": "^0.18.0",
+    "nodeauth": "file:../../../oclc-auth-node"
   }
 }

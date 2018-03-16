@@ -10,9 +10,9 @@ module.exports = class Wskey {
 
         this.services = options && options.services ? options.services : null;
         this.redirectUri = options && options.redirectUri ? options.redirectUri : null;
-        this.user = options && options.user ? options.user : null;
-        this.bodyHash = options && options.bodyHash && options.bodyHash ? options.bodyHash : "";
-        this.contextInstitutionId = options && options.contextInstitutionId ? options.contextInstitutionId : null;
+
+        this.user = null;
+        this.bodyHash = "";
     }
 
     getKey() {
@@ -41,13 +41,12 @@ module.exports = class Wskey {
 
     getLoginURL(authenticatingInstitutionId, contextInstitutionId) {
 
-        let authCode = new this.AuthCode({
-            client_id: this.key,
-            authenticatingInstitutionId: authenticatingInstitutionId,
-            contextInstitutionId: contextInstitutionId,
-            redirectUri: this.redirectUri,
-            scope: this.services
-        });
+        let authCode = new this.AuthCode(this.key, this.redirectUri, this.services,
+            {
+                authenticatingInstitutionId: authenticatingInstitutionId,
+                contextInstitutionId: contextInstitutionId
+            }
+        );
         return authCode.getLoginUrl();
     }
 
@@ -97,6 +96,12 @@ module.exports = class Wskey {
         const nonce = options && options.nonce ? options.nonce : Math.round(Math.random() * 4294967295);
         const timestamp = options && options.timestamp ? options.timestamp : Math.round((new Date()).getTime() / 1000);
 
+        if (options) {
+            for (let parameter in options) {
+                this[parameter] = options[parameter];
+            }
+        }
+
         this.signedRequest = Wskey.signRequest(this.key, this.secret, method, request_url, this.bodyHash, timestamp, nonce);
 
         let auth_header = config.HMAC_AUTHORIZATION_URL + " "
@@ -106,12 +111,10 @@ module.exports = class Wskey {
             + "signature=" + q + this.signedRequest;
 
         if (this.user) {
-            auth_header += qc
-                + "principalID=" + q + this.user.principalID + qc
-                + "principalIDNS=" + q + this.user.principalIDNS;
+            auth_header += qc + this.addAuthParams(this.user);
+        } else {
+            auth_header += q;
         }
-
-        auth_header += q;
 
         return auth_header;
 
@@ -176,7 +179,15 @@ module.exports = class Wskey {
         return queryParameters;
     }
 
-    addAuthParams(user, authParams) {
-        //todo - not needed?
+    addAuthParams(user) {
+        let params = "";
+
+        for (let parameter in user) {
+            if (parameter !== "authenticatingInstitutionId") {
+                params += `${parameter}="${user[parameter]}", `;
+            }
+        }
+
+        return params.replace(/,\s$/, "");
     }
 };

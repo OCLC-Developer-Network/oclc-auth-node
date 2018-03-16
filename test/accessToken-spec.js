@@ -5,20 +5,21 @@ const User = require("../src/user.js");
 
 describe("Access Token", function () {
 
+    const key = "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3";
+    const secret = "eUK5Qz9AdsZQrCPRRliBzQ==";
+    const authenticatingInstitutionId = "128807";
+    const contextInstitutionId = "128807";
+
     const user = new User({
         "authenticatingInstitutionId": "128807",
     });
 
-    const wskey = new Wskey("7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
-        "eUK5Qz9AdsZQrCPRRliBzQ==",
+    const wskey = new Wskey(key, secret,
         {
-            "contextInstitutionId": "128807",
             "redirectUri": "http://localhost/auth/",
-            "responseType": "code",
             "services": ["WMS_CIRCULATION", "WMS_NCIP"],
-            "user": user
         });
-
+/*
     it("should build a refresh_token token access url", function () {
 
         const refreshToken = new RefreshToken({
@@ -95,43 +96,5 @@ describe("Access Token", function () {
         expect(accessToken.isExpired()).not.toBeTruthy();
 
     });
-
-    it("should detect if the refresh token is expired", function () {
-
-        //const wskey = new Wskey({
-        //    "clientID": "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
-        //    "secret": "eUK5Qz9AdsZQrCPRRliBzQ==",
-        //    "contextInstitutionId": "128807",
-        //    "redirectUri": "http://localhost/auth/",
-        //    "responseType": "code",
-        //    "scope": ["WMS_CIRCULATION", "WMS_NCIP", "refresh_token"]
-        //});
-        const accessToken = new AccessToken();
-
-        // useRefreshTokens is true but there is no token
-        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
-
-        // useRefreshTokens is true but there is no refresh token
-        accessToken.accessTokenString = "tk_aprcZaw2cx67G4RPyCaeqiRBvqlVTU4Cfufj";
-        accessToken.scope = ["refresh_token"];
-        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
-
-        // useRefreshTokens is true and there is a refresh token that is expired
-        accessToken.refreshToken = new RefreshToken({
-            "refreshToken": "rt_bJTBHFohtNEWlcLGe9iYMzxGxndq7hQsVm62",
-            "expiresIn": 604799,
-            "expiresAt": "2017-01-01 15:00:00Z"
-        });
-        expect(accessToken.isRefreshTokenExpired()).toBeTruthy();
-
-        // useRefreshTokens is true and there is a refresh token that is not expired
-        accessToken.refreshToken = new RefreshToken({
-            "refreshToken": "rt_bJTBHFohtNEWlcLGe9iYMzxGxndq7hQsVm62",
-            "expiresIn": 604799,
-            "expiresAt": "2030-01-01 15:00:00Z"
-        });
-
-        expect(accessToken.isRefreshTokenExpired()).not.toBeTruthy();
-    });
-
+*/
 });

@@ -1,9 +1,9 @@
 module.exports = class User {
 
-    constructor(options) {
-        this.principalID = options && options.principalID ? options.principalID : null;
-        this.principalIDNS = options && options.principalIDNS ? options.principalIDNS : null;
-        this.authenticatingInstitutionId = options && options.authenticatingInstitutionId ? options.authenticatingInstitutionId : null;
+    constructor(authenticatingInstitutionId,principalID,principalIDNS) {
+        this.principalID = principalID;
+        this.principalIDNS = principalIDNS;
+        this.authenticatingInstitutionId = authenticatingInstitutionId+"";
     };
 
     getPrincipalID() {

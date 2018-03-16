@@ -3,33 +3,36 @@ describe("HMAC Hashing", function () {
     const Wskey = require("../src/wskey.js");
     const User = require("../src/user.js");
 
-    const user = new User({
-        "principalID": "wera9f92-3751-4r1c-r78a-d78d13df26b1",
-        "principalIDNS": "urn:oclc:wms:da",
-        "authenticatingInstitutionId": "128807"
-    });
+    const key = "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3";
+    const secret = "eUK5Qz9AdsZQrCPRRliBzQ";
+    const authenticatingInstitutionId = "128807";
+    const principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1";
+    const principalIDNS = "urn:oclc:wms:da";
+    const redirectUri = "http://localhost/auth/";
+    const services = ["WMS_CIRCULATION", "WMS_NCIP"];
 
-    const wskey = new Wskey(
-        "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
-        "eUK5Qz9AdsZQrCPRRliBzQ==",
+    const user = new User(authenticatingInstitutionId, principalID, principalIDNS);
+
+    const wskey = new Wskey(key, secret,
         {
-            "contextInstitutionId": "128807",
-            "redirectUri": "http://localhost/auth/",
-            "services": ["WMS_CIRCULATION", "WMS_NCIP"],
-            "user": user
+            redirectUri: redirectUri,
+            services: services
         }
     );
 
     it("should sign a request", function () {
 
-        const expectedAuthorizationHeader = 'http://www.worldcat.org/wskey/v2/hmac/v1 clientID="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3", timestamp="1518632079", nonce="a9bebe15", signature="OSiEqkmYyN8hECElYMNrQvg+qL6PbI05zwzdMS8ZAfg=", principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
+        const expectedAuthorizationHeader = 'http://www.worldcat.org/wskey/v2/hmac/v1 clientID="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3", timestamp="1521223399", nonce="2176156982", signature="Mvb7L4sJaiK8GrF8ULeZKWeohNc/7KKC9A9yUFo9Z5M=", principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
 
-        const hmacSignature = wskey.getHMACSignature("GET",
-            "https://128807.share.worldcat.org/circ/pulllist/129479?startIndex=1&itemsPerPage=1",
-            {
-                "timestamp": "1518632079",
-                "nonce": "a9bebe15"
-            });
+        const options = {
+            user: user,
+            timestamp: "1521223399",
+            nonce: "2176156982"
+        };
+
+        const url = "https://worldcat.org/bib/data/829180274?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN";
+
+        const hmacSignature = wskey.getHMACSignature("GET", url, options);
 
         expect(hmacSignature).toEqual(expectedAuthorizationHeader);
     });

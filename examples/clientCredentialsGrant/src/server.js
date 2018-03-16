@@ -11,18 +11,18 @@ const rp = require("request-promise-native");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
-const authenticatingInstitutionId = "{your institution ID}";
-const contextInstitutionId = "{your institution ID}";
+const authenticatingInstitutionId = "128807";
+const contextInstitutionId = "128807";
 
 const user = new User(
     {
-        principalID: "{your principal ID}",
-        principalIDNS: "{your principal IDNS}",
+        principalID: "8eaa9f92-3951-431c-975a-d7df26b8d131",
+        principalIDNS: "urn:oclc:wms:da",
     });
 
 const wskey = new Wskey(
-    "{your clientID}",
-    "{your secret}",
+    "aCcndeDMjFO9vszkDrB6WJg1UnyTnkn8lLupLKygr0U1KJZoeAittuVjGRywCDdrsxahv2bsjgKq6hLM",
+    "EyZfIJdGQXeatxQOjdkQZw==",
     {
         services: ["WorldCatMetadataAPI"]
     });

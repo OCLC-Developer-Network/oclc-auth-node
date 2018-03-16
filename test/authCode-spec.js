@@ -9,12 +9,12 @@ describe("Authorization Code", function () {
         const expectedLoginURL = "https://authn.sd00.worldcat.org/oauth2/authorizeCode?client_id=7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3&authenticatingInstitutionId=128807&contextInstitutionId=128807&redirect_uri=http%3A%2F%2Flocalhost%2Fauth%2F&response_type=code&scope=WMS_CIRCULATION%20WMS_NCIP";
 
         const authCode = new AuthCode(
+            "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
+            "http://localhost/auth/",
+            ["WMS_CIRCULATION", "WMS_NCIP"],
             {
-                clientID: "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3",
                 authenticatingInstitutionId: "128807",
-                contextInstitutionId: "128807",
-                redirectUri: "http://localhost/auth/",
-                scope: ["WMS_CIRCULATION", "WMS_NCIP"]
+                contextInstitutionId: "128807"
             }
         );
 
