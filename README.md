@@ -8,7 +8,7 @@ This library supports
 * Explicit Authentication Flow (User signs in, you get a token)
 * Client Credentials Grant (Pass the user credentials directly and get a token)
 
-For Explicit Authentication Flow and Client Credentials Grant, an Express Middleware is provided to handle the authentication flow and make retrieving a token easy. Examples are provided to explain how it all works.
+Examples for each type of authentication are provided.
 
 ## Quick Start
 
@@ -30,7 +30,7 @@ Take a look at examples for HMAC Authentication, Explicit Authorization Flow and
 
 You can make server to server requests using an [HMAC Signature](https://www.oclc.org/developer/develop/authentication/hmac-signature.en.html). HMAC authentication is only for server to server requests, and should never be used on the client side (browser or mobile) because doing so would expose the Secret. See Explicit and Mobile authentication flows below for those cases.
 
-HMAC Signature uses a clientID and secret to authenticate server to server, request by request. It is never used client side to server.
+HMAC Signature uses a key and secret to authenticate server to server, request by request. It is never used client side to server.
 
 For an example of Explicit Authentication Flow, go to ```examples/hmacSignature``` ([README](examples/hmacSignature/README.md)).
 
