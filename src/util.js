@@ -26,10 +26,12 @@ module.exports = class Util {
      */
     static scopeContainsRefreshToken(scope) {
         let containsRefreshToken = false;
-        for (let i=0; i< scope.length; i++) {
-            if (scope[i] === "refresh_token") {
-                containsRefreshToken = true;
-                break;
+        if (scope) {
+            for (let i = 0; i < scope.length; i++) {
+                if (scope[i] === "refresh_token") {
+                    containsRefreshToken = true;
+                    break;
+                }
             }
         }
 

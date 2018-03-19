@@ -1,32 +1,32 @@
 module.exports = class User {
 
-    constructor(options) {
-        this.principalId = options && options.principalId ? options.principalId : null;
-        this.principalIdns = options && options.principalIdns ? options.principalIdns : null;
-        this.authenticatingInstitutionId = options && options.authenticatingInstitutionId ? options.authenticatingInstitutionId : null;
+    constructor(authenticatingInstitutionId,principalID,principalIDNS) {
+        this.principalID = principalID;
+        this.principalIDNS = principalIDNS;
+        this.authenticatingInstitutionId = authenticatingInstitutionId+"";
     };
 
-    getPrincipalId() {
-        return this.principalId;
+    getPrincipalID() {
+        return this.principalID;
     }
 
-    setPrincipalId(principalId) {
-        this.principalId = principalId;
+    setPrincipalID(principalID) {
+        this.principalID = principalID;
     }
 
-    getPrincipalIdns() {
-        return this.principalIdns;
+    getPrincipalIDNS() {
+        return this.principalIDNS;
     }
 
-    setPrincipalIdns(principalIdns) {
-        this.principalIdns = principalIdns;
+    setPrincipalIDNS(principalIDNS) {
+        this.principalIDNS = principalIDNS;
     }
 
-    getAuthenticatingInstitutionId() {
+    getAuthenticatingInstitutionID() {
         return this.authenticatingInstitutionId;
     }
 
-    setAuthenticatingInstitutionId(authenticatingInstitutionId) {
+    setAuthenticatingInstitutionID(authenticatingInstitutionId) {
         this.authenticatingInstitutionId = authenticatingInstitutionId;
     }
 };
