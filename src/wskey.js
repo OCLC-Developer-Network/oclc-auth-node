@@ -13,6 +13,15 @@ module.exports = class Wskey {
 
         this.user = null;
         this.bodyHash = "";
+
+        this.error = null;
+
+        if (!this.key || this.key === "") {
+            this.error = "Error: Key must have a value.";
+        }
+        if (!this.secret || this.secret === "") {
+            this.error = "Error: Secret must have a value.";
+        }
     }
 
     getKey() {
@@ -67,7 +76,7 @@ module.exports = class Wskey {
         const options = {
             authenticatingInstitutionId: authenticatingInstitutionId,
             contextInstitutionId: contextInstitutionId,
-            services: this.services
+            scope: this.services
         };
 
         this.user = user ? user : new this.User({});
@@ -122,7 +131,7 @@ module.exports = class Wskey {
 
     static signRequest(key, secret, method, request_url, bodyHash, timestamp, nonce) {
         const crypto = require("crypto");
-        const hmac = crypto.createHmac('sha256', secret);
+        const hmac = crypto.createHmac('sha256', secret ? secret : "");
 
         hmac.update(Wskey.normalizeRequest(key, method, request_url, bodyHash, timestamp, nonce));
         return new Buffer(hmac.digest()).toString('base64');

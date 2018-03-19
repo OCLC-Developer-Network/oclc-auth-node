@@ -21,8 +21,6 @@ const url = 'https://worldcat.org/bib/data/829180274?classificationScheme=Librar
 
 const authorizationHeader = wskey.getHMACSignature("GET", url, options);
 
-console.log(authorizationHeader);
-
 axios({
     method: "get",
     url: url,
@@ -35,8 +33,30 @@ axios({
         console.log(JSON.stringify(response.data, null, 4));
     })
 
+    // Catch the error from the request and interpret it to print a meaningful message.
     .catch(function (err) {
-        console.log("\n*** Unable to retrieve Bibliographic Resource. ***\n");
-        console.log(err);
+        console.log(err.response.status + " " + err.response.statusText);
+
+        if (wskey.error) {
+            console.log(wskey.error);
+        }
+
+        let message = "";
+        let data = err.response.data;
+
+        if (typeof data === "string") {
+            let matches = data ? data.match(/<message>(.*)<\/message>/) : null;
+            if (matches && matches.length > 1) {
+                message = matches[1].replace(/&apos;/g, "'").replace(/&quot;/g, "\"");
+            } else {
+                message = data;
+            }
+        } else if (typeof data === "object") {
+            message = data && data.message ? data.message : JSON.stringify(data);
+        }
+        console.log(message);
+        if (message === "Unable to retrieve user permissions due to bad request") {
+            console.log("Make sure principalID, principalIDNS and authenticatingInstitutionID are properly set.");
+        }
     });
 

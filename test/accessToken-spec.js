@@ -10,16 +10,14 @@ describe("Access Token", function () {
     const authenticatingInstitutionId = "128807";
     const contextInstitutionId = "128807";
 
-    const user = new User({
-        "authenticatingInstitutionId": "128807",
-    });
+    const user = new User("128807");
 
     const wskey = new Wskey(key, secret,
         {
             "redirectUri": "http://localhost/auth/",
             "services": ["WMS_CIRCULATION", "WMS_NCIP"],
         });
-/*
+
     it("should build a refresh_token token access url", function () {
 
         const refreshToken = new RefreshToken({
@@ -44,7 +42,8 @@ describe("Access Token", function () {
         const accessToken = new AccessToken("authorization_code", {
                 wskey: wskey,
                 code: "auth_Ztm8UjLSKpP5V0Gskgev3v2G21sfGx18vxtA",
-                user: user
+                user: user,
+                contextInstitutionId: contextInstitutionId
             }),
             expectedAccessTokenURL = "https://authn.sd00.worldcat.org/oauth2/accessToken?" +
                 "grant_type=authorization_code" +
@@ -60,7 +59,8 @@ describe("Access Token", function () {
 
         const accessToken = new AccessToken("client_credentials", {
                 wskey: wskey,
-                user: user
+                user: user,
+                contextInstitutionId: contextInstitutionId
             }),
             expectedAccessTokenURL = "https://authn.sd00.worldcat.org/oauth2/accessToken?" +
                 "grant_type=client_credentials" +
@@ -96,5 +96,5 @@ describe("Access Token", function () {
         expect(accessToken.isExpired()).not.toBeTruthy();
 
     });
-*/
+
 });

@@ -22,11 +22,11 @@ npm install
 cd src
 ```
 Edit bibRecord.js and define your authentication parameters.
-* clientID
+* key
 * secret
-* principalID
-* principalIDNS
-* context and authentication institution ID's
+* principal ID
+* principal IDNS
+* authenticating Institution ID
 
 Run the example:
 
@@ -34,4 +34,4 @@ Run the example:
 node bibRecord.js
 ```
 
-If your authentication parameters are correct, you should see a (lengthy) atom+json representation of a bibliographic record for OCLC number 829180274.
+If your authentication parameters are correct, you should see a (lengthy) atom+json representation of a bibliographic record.

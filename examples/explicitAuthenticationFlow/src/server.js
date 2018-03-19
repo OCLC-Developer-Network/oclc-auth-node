@@ -3,23 +3,25 @@
  * @type {*|createApplication}
  */
 
-const Wskey = require("nodeauth/src/Wskey");
-const User = require("nodeauth/src/user");
-
+const axios = require("axios");
 const express = require("express");
-const rp = require("request-promise-native");
 const url = require("url");
+
+const Wskey = require("nodeauth/src/Wskey");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
+const key = "{your clientID}";
+const secret = "{your secret}";
 const authenticatingInstitutionId = "{your institution ID}";
 const contextInstitutionId = "{your institution ID}";
+const options = {
+    services: ["WorldCatMetadataAPI", "refresh_token"],
+    redirectUri: "http://localhost:8000/auth/"
+};
 
-const wskey = new Wskey("{your clientID}", "{your secret}",
-    {
-        "redirectUri": "http://localhost:8000/auth/",
-        "services": ["WorldCatMetadataAPI", "refresh_token"],
-    });
+//const user = new User(authenticatingInstitutionId/*, principalID, principalIDNS*/);
+const wskey = new Wskey(key, secret, options);
 
 let authCode;
 let accessToken;
@@ -30,6 +32,7 @@ const port = 8000; // should match the redirect URI configured on the wskey
 
 let bibRecord;
 let oclcnumber = "829180274";
+let error;
 
 // ---- Initialize a Server --------------------------------------------------------------------------------------------
 
@@ -47,7 +50,7 @@ app.get("/", function (req, res) {
     res.render("index", {
         pageTitle: "Explicit Authentication Flow",
         accessTokenString: context.accessToken && context.accessToken.getAccessTokenString() ?
-            context.accessToken.getAccessTokenString() : "Press button to get token.",
+            JSON.stringify(context.accessToken, null, 4) : "Press button to get token.",
         errorMessage: null,
         bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
         oclcnumber: oclcnumber
@@ -63,8 +66,14 @@ app.get("/login", function (req, res) {
         wskey.getAccessTokenWithAuthCode(authCode, authenticatingInstitutionId, contextInstitutionId)
             .then(function (accessToken) {
                 context.accessToken = accessToken;
-                res.redirect("/")
+                bibRecord = null;
+                res.redirect("/");
+                authCode = null;
             })
+            .catch(function (err) {
+                error = err && err.response && err.response.body ? err.response.body : err;
+                res.redirect("/error");
+            });
     } else {
         let redirectToAuthCodeLoginURL = '<html><head>'
             + '<meta http-equiv="refresh" content="0; url='
@@ -80,8 +89,19 @@ app.get("/login", function (req, res) {
 let redirectPath = url.parse(wskey.getRedirectUri()).pathname;
 
 app.get(redirectPath, function (req, res) {
-    authCode = req.query.code;
-    res.redirect("/login");
+    if (req && req.query && req.query.code) {
+        authCode = req.query.code;
+        res.redirect("/login");
+    } else {
+        error = req.url;
+        res.redirect("/error");
+    }
+});
+
+// ---- Display errors -------------------------------------------------------------------------------------------------
+
+app.get("/error", function (req, res) {
+    res.send(`<h1>Error Page</h1><div style="width:800px;overflow:hidden;white-space:pre-wrap">${error}</div>`);
 });
 
 // ---- Get a bib record -----------------------------------------------------------------------------------------------
@@ -100,26 +120,26 @@ app.get("/bibRecord", function (req, res) {
 
             .then(function (accessToken) {
                 context.accessToken = accessToken;
-                rp({
+                axios({
                     url: `https://worldcat.org/bib/data/${oclcnumber}`,
                     method: "GET",
                     headers: {
                         "Accept": "application/atom+json",
                         "Authorization": `Bearer ${context.accessToken.getAccessTokenString()}`
-                    },
-                    json: true
+                    }
                 })
-                    .then(function (data) {
-                        bibRecord = data;
+                    .then(function (response) {
+                        bibRecord = response.data;
                         res.redirect("/");
                     })
                     .catch(function (err) {
-                        console.log(err);
-                        res.redirect("/");
+                        error = err && err.response && err.response.body ? err.response.body : err;
+                        res.redirect("/error");
                     });
             })
             .catch(function (err) {
-                console.log(err)
+                error = err;
+                res.redirect("/error");
             });
     }
 });

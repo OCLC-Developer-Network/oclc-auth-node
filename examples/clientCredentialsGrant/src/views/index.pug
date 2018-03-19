@@ -5,7 +5,7 @@ html(lang="en")
     body
         h1= pageTitle
         a(href="/login")
-            button Request Token
+            button= buttonMessage
         pre= accessTokenString
         form(action="/bibRecord")
             label(for="oclc-number") OCLC Number:&nbsp;
