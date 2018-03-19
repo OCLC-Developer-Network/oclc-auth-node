@@ -3,35 +3,29 @@
  * @type {*|createApplication}
  */
 
+const axios = require("axios");
 const express = require("express");
+
 const Wskey = require("nodeauth/src/Wskey");
-const AccessToken = require("nodeauth/src/accessToken");
 const User = require("nodeauth/src/user");
-const OCLCMiddleware = require("nodeauth/src/oclcMiddleware");
-const rp = require("request-promise-native");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
-const wskey = new Wskey({
-    "clientId": "{your clientId}",
-    "secret": "{your secret}",
-    "contextInstitutionId": "{your institution ID}",
-    "redirectUri": "http://localhost:8000/auth/",
-    "responseType": "code",
-    "scope": ["WorldCatMetadataAPI"]
-});
+const key = "{your clientID}";
+const secret = "{your secret}";
 
-const user = new User({
-    principalId: "{your principal ID}",
-    principalIdns: "{your principal IDNS}",
-    authenticatingInstitutionId: "{your institution ID}"
-});
+const principalID = "{your principal ID}";
+const principalIDNS = "{your principal IDNS}";
+const authenticatingInstitutionId = "{your institution ID}";
+const contextInstitutionId = "{your institution ID}";
+const options = {
+    services: ["WorldCatMetadataAPI"]
+};
 
-let accessToken = new AccessToken({
-    wskey: wskey,
-    grantType: "client_credentials",
-    user: user
-});
+const user = new User(authenticatingInstitutionId, principalID, principalIDNS);
+const wskey = new Wskey(key, secret, options);
+
+this.accessToken = null;
 
 const port = 8000; // should match the redirect URI configured on the wskey
 
@@ -39,6 +33,7 @@ const port = 8000; // should match the redirect URI configured on the wskey
 
 let bibRecord;
 let oclcnumber = "829180274";
+let error;
 
 // ---- Initialize a Server --------------------------------------------------------------------------------------------
 
@@ -48,47 +43,79 @@ app.listen(port, function () {
     console.log("server listening on port " + port);
 });
 
-// ---- Middleware -----------------------------------------------------------------------------------------------------
-
-app.use(OCLCMiddleware.authenticationManager({
-    homePath: "/",
-    authenticationPath: "/login",
-    port: port, // if omitted assumes 80 for http or 443 for https. We set it to 8000 in this example.
-    accessToken: accessToken,
-    user: user,
-    wskey: wskey,
-}));
-
-// Serve the main page
+// ---- Serve the main page --------------------------------------------------------------------------------------------
 app.get("/", function (req, res) {
+
+    const context = this;
+
+    let isAccessToken = context.accessToken && context.accessToken.getAccessTokenString();
+    let isBibRecord = bibRecord;
+    let bibRecordText;
+
+    if (!isAccessToken) {
+        bibRecordText = "Please press Request Token before requesting a Bib Record.";
+    } else if (!isBibRecord) {
+        bibRecordText = "Please press Get Bib Record to retrieve a record."
+    } else {
+        bibRecordText = JSON.stringify(bibRecord, null, 4);
+    }
+
     res.render("index", {
         pageTitle: "Client Credentials Grant",
-        token: accessToken.getValue() ? JSON.stringify(accessToken.params, null, 4) : "Press button to get token.",
-        bibRecord: bibRecord ? JSON.stringify(bibRecord, null, 4) : "Please authenticate before requesting a Bib Record.",
-        oclcnumber: oclcnumber
+        accessTokenString: isAccessToken ? JSON.stringify(context.accessToken, null, 4) : "Press button to get token.",
+        errorMessage: null,
+        bibRecord: bibRecordText,
+        oclcnumber: oclcnumber,
+        buttonMessage: isAccessToken ? "Request Another Token" : "Request Token"
     });
 });
 
-// Get a bib record
+// ---- Handle authentication for CCG, just get a token and redirect back to the home page) ----------------------------
+
+app.get("/login", function (req, res) {
+
+    const context = this;
+
+    bibRecord = null;
+
+    wskey.getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user)
+
+        .then(function (accessToken) {
+            context.accessToken = accessToken;
+            res.redirect("/");
+        })
+        .catch(function (err) {
+            error = err && err.response && err.response.body ? err.response.body : err;
+            res.redirect("/error");
+        })
+});
+
+// ---- Display errors -------------------------------------------------------------------------------------------------
+
+app.get("/error", function (req, res) {
+    res.send(`<h1>Error Page</h1><div style="width:800px;overflow:hidden;white-space:pre-wrap">${error}</div>`);
+});
+
+// ---- Use the CCG token to get a bib record --------------------------------------------------------------------------
 app.get("/bibRecord", function (req, res) {
 
-    if (!accessToken.getValue()) {
+    if (!accessToken.getAccessTokenString()) {
         res.redirect("/");
     }
 
     oclcnumber = req.query.oclcnumber;
 
-    rp({
-        url: `https://worldcat.org/bib/data/${oclcnumber}`,
+    axios({
         method: "GET",
+        url: `https://worldcat.org/bib/data/${oclcnumber}`,
         headers: {
             "Accept": "application/atom+json",
-            "Authorization": `Bearer ${accessToken.getValue()}`
+            "Authorization": `Bearer ${accessToken.getAccessTokenString()}`
         },
         json: true
     })
-        .then(function (data) {
-            bibRecord = data;
+        .then(function (response) {
+            bibRecord = response.data;
             res.redirect("/");
         })
         .catch(function (err) {
