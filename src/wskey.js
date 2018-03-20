@@ -119,6 +119,10 @@ module.exports = class Wskey {
             + "nonce=" + q + nonce + qc
             + "signature=" + q + this.signedRequest;
 
+        if (!this.user && this.authenticatingInstitutionId && this.principalID && this.principalIDNS) {
+            this.user = new this.User(this.authenticatingInstitutionId, this.principalID, this.principalIDNS);
+        }
+
         if (this.user) {
             auth_header += qc + this.addAuthParams(this.user);
         } else {
@@ -138,6 +142,11 @@ module.exports = class Wskey {
     }
 
     static normalizeRequest(key, method, request_url, bodyHash, timestamp, nonce) {
+
+        if (!bodyHash) {
+            bodyHash="";
+        }
+
         return key + "\n"
             + timestamp + "\n"
             + nonce + "\n"
@@ -192,7 +201,7 @@ module.exports = class Wskey {
         let params = "";
 
         for (let parameter in user) {
-            if (parameter !== "authenticatingInstitutionId") {
+            if (user && user[parameter] && parameter !== "authenticatingInstitutionId") {
                 params += `${parameter}="${user[parameter]}", `;
             }
         }

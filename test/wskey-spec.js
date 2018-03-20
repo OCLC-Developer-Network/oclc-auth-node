@@ -6,7 +6,7 @@ describe("HMAC Hashing", function () {
     const key = "7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3";
     const secret = "eUK5Qz9AdsZQrCPRRliBzQ";
     const authenticatingInstitutionId = "128807";
-    const principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1";
+    const principalID = "wera9f92-3751-4r1c-r78a-d78d13df26b1";
     const principalIDNS = "urn:oclc:wms:da";
     const redirectUri = "http://localhost/auth/";
     const services = ["WMS_CIRCULATION", "WMS_NCIP"];
@@ -20,9 +20,7 @@ describe("HMAC Hashing", function () {
         }
     );
 
-    it("should sign a request", function () {
-
-        const expectedAuthorizationHeader = 'http://www.worldcat.org/wskey/v2/hmac/v1 clientID="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3", timestamp="1521223399", nonce="2176156982", signature="Mvb7L4sJaiK8GrF8ULeZKWeohNc/7KKC9A9yUFo9Z5M=", principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
+    it("should sign a request with user options passed as a user object", function () {
 
         const options = {
             user: user,
@@ -30,9 +28,31 @@ describe("HMAC Hashing", function () {
             nonce: "2176156982"
         };
 
+
         const url = "https://worldcat.org/bib/data/829180274?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN";
 
         const hmacSignature = wskey.getHMACSignature("GET", url, options);
+
+        const expectedAuthorizationHeader = 'http://www.worldcat.org/wskey/v2/hmac/v1 clientID="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3", timestamp="1521223399", nonce="2176156982", signature="Mvb7L4sJaiK8GrF8ULeZKWeohNc/7KKC9A9yUFo9Z5M=", principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
+
+        expect(hmacSignature).toEqual(expectedAuthorizationHeader);
+    });
+
+    it("should sign a request with user options passed as parameters", function () {
+
+        const options = {
+            authenticatingInstitutionId: authenticatingInstitutionId,
+            principalID: principalID,
+            principalIDNS: principalIDNS,
+            timestamp: "1521223399",
+            nonce: "2176156982"
+        };
+
+        const url = "https://worldcat.org/bib/data/829180274?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN";
+
+        const hmacSignature = wskey.getHMACSignature("GET", url, options);
+
+        const expectedAuthorizationHeader = 'http://www.worldcat.org/wskey/v2/hmac/v1 clientID="7nRtI3ChLuduC7zDYTnQPGPMlKYfxe23wcz5JfkGuNO5U7ngxVsJaTpf5ViU42gKNHSpMawWucOBOyH3", timestamp="1521223399", nonce="2176156982", signature="Mvb7L4sJaiK8GrF8ULeZKWeohNc/7KKC9A9yUFo9Z5M=", principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
 
         expect(hmacSignature).toEqual(expectedAuthorizationHeader);
     });
@@ -59,9 +79,38 @@ describe("HMAC Hashing", function () {
             .toEqual("anotherOne=true\nhowTall=tooTall\n")
     });
 
+    it("should normalize a request with a null bodyHash",function(){
+
+        const key="12345";
+        const method="POST";
+        const request_url="http://www.tallgeorge.com/auth/";
+        let bodyHash;
+        const timestamp="1514161718";
+        const nonce="39475865";
+
+        let expected="12345\n" +
+            "1514161718\n" +
+            "39475865\n" +
+            "\n" +
+            "POST\n" +
+            "www.oclc.org\n" +
+            "443\n" +
+            "/wskey\n";
+
+        expect(Wskey.normalizeRequest(key, method, request_url, bodyHash, timestamp, nonce)).toEqual(expected);
+    });
+
     it("should properly escape query parameters", function () {
         expect(Wskey.getQueryParameters("http://www.tallgeorge.com?q=:!'()* harry potter")).toEqual("q=%3A%21%27%28%29%2A%20harry%20potter\n");
     });
 
+    it("should add auth parameters from a user object, skipping authenticatingInstitutionId", function () {
+
+        const expected = 'principalID="wera9f92-3751-4r1c-r78a-d78d13df26b1", principalIDNS="urn:oclc:wms:da"';
+
+        expect(wskey.addAuthParams(user)).toEqual(expected);
+        expect(wskey.addAuthParams(new User())).toEqual("");
+        expect(wskey.addAuthParams()).toEqual("");
+    });
 
 });
