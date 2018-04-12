@@ -1,4 +1,4 @@
-# Explicit Authorization Flow example
+# Explicit Authorization Flow Example
 
 Explicit Authorization Flow requires a user to sign into OCLC in order to receive an Access Token.
 

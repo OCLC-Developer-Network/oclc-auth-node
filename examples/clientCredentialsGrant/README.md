@@ -1,4 +1,4 @@
-# Client Credentials Grant
+# Client Credentials Grant Example
 
 Client Credentials Grant flow *does not* require a user to sign into OCLC in order to receive an Access Token. This flow assumes the client has already validated the user.
 

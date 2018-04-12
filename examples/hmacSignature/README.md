@@ -1,4 +1,4 @@
-# HMAC Signature example
+# HMAC Signature Example
 
 HMAC Signature uses a clientID and secret to authenticate server to server. It is never used client side to server.
 

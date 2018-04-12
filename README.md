@@ -5,7 +5,7 @@ This library contains javascript classes that handle the authentication chore so
 This library supports
 
 * HMAC Hashing
-* Explicit Authentication Flow (User signs in, you get a token)
+* Explicit Authorzation Flow (User signs in, you get a token)
 * Client Credentials Grant (Pass the user credentials directly and get a token)
 
 Examples for each type of authentication are provided.
@@ -46,7 +46,7 @@ nodeauth.Wskey
 
 ## Examples
 
-Take a look at examples for HMAC Authentication, Explicit Authorization Flow and Client Credentials Grant:
+Examples are provided for HMAC Authentication, Explicit Authorization Flow and Client Credentials Grant:
 
 ### HMAC Authentication
 
@@ -77,9 +77,9 @@ const url = 'https://worldcat.org/bib/data/829180274?classificationScheme=Librar
 const authorizationHeader = wskey.getHMACSignature("GET", url, options);
 ```
 
-For a complete working example, see [README](examples/hmacSignature/README.md) in ```examples/hmacSignature```.
+For a complete working example, see [HMAC Signature Example](examples/hmacSignature/README.md) in the  ```examples/hmacSignature``` folder.
 
-### Explicit Flow
+### Explicit Authorization Flow
 
 You can make client to server requests (ie, from a web browser) using the [Explicit Authorization Code](https://www.oclc.org/developer/develop/authentication/access-tokens/explicit-authorization-code.en.html) pattern.
 
@@ -94,9 +94,6 @@ const nodeauth = require("nodeauth");
 Create a Wskey object. Note that by passing "refresh_token" as a service, we ask that a refresh token be created.
 
 ```
-const key = "{your clientID}";
-const secret = "{your secret}";
-
 const options = {
     services: ["WorldCatMetadataAPI", "refresh_token"],
     redirectUri: "http://localhost:8000/auth/"
@@ -108,7 +105,7 @@ const wskey = new nodeauth.Wskey(key, secret, options);
 First, use the Wskey object to get a login url:
 
 ```
-const loginUrl = wskey.getLoginURL(authenticatingInstitutionId, contextInstitutionId)
+const loginUrl = wskey.getLoginURL(authenticatingInstitutionId, contextInstitutionId);
 ```
 
 Handle the redirect and strip the authCode from the url.
@@ -119,18 +116,14 @@ Then use the Wskey object to get an access token from the ```getAccessTokenWithA
         wskey.getAccessTokenWithAuthCode(authCode, authenticatingInstitutionId, contextInstitutionId)
             .then(function (accessToken) {
                 context.accessToken = accessToken;
-                bibRecord = null;
-                res.redirect("/");
-                authCode = null;
             })
             .catch(function (err) {
-                error = err && err.response && err.response.body ? err.response.body : err;
                 res.redirect("/error");
             });
 ```
 
 
-For a complete working example, see [README](examples/explicitAuthenticationFlow/README.md) in ```examples/explicitAuthenticationFlow```.
+For a complete working example, see [Explicit Authorization Flow Example](examples/explicitAuthorizationFlow/README.md) in ```examples/explicitAuthorizationFlow```.
 
 The example works with or without [refresh tokens](https://www.oclc.org/developer/develop/authentication/access-tokens/refresh-token.en.html).
 
@@ -149,12 +142,6 @@ const nodeauth = require("nodeauth");
 Create Wskey and User objects:
 
 ```
-const key = "{your clientID}";
-const secret = "{your secret}";
-
-const principalID = "{your principal ID}";
-const principalIDNS = "{your principal IDNS}";
-const authenticatingInstitutionId = "{your institution ID}";
 const options = {
     services: ["WorldCatMetadataAPI"]
 };
@@ -169,21 +156,20 @@ First, get an access token with the ```getAccessTokenWithClientCredentials``` pr
     wskey.getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user)
 
         .then(function (accessToken) {
-            context.accessToken = accessToken;
-            res.redirect("/");
+            myAccessToken = accessToken;
         })
         .catch(function (err) {
-            error = err && err.response && err.response.body ? err.response.body : err;
-            res.redirect("/error");
+            let error = err && err.response && err.response.body ? err.response.body : err;
+            console.log(error);
         })
 ```
 
-Then use the token to get a bib record
+Then use the token to get a bib record by setting it in the request header
 
 ```
-"Authorization": `Bearer ${accessToken.getAccessTokenString()}`
+{"Authorization": `Bearer ${accessToken.getAccessTokenString()}`}
 ```
 
-For an example of Client Credentials Grant, go to ```examples/clientCredentialsGrant``` ([README](examples/clientCredentialsGrant/README.md)).
+For an example of Client Credentials Grant, go to ```examples/clientCredentialsGrant``` ([Client Credentials Grant Example](examples/clientCredentialsGrant/README.md)).
 
 
