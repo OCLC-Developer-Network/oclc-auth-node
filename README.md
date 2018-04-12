@@ -170,6 +170,6 @@ Then use the token to get a bib record by setting it in the request header
 {"Authorization": `Bearer ${accessToken.getAccessTokenString()}`}
 ```
 
-For an example of Client Credentials Grant, go to ```examples/clientCredentialsGrant``` ([Client Credentials Grant Example](examples/clientCredentialsGrant/README.md)).
+For an the [Client Credentials Grant Example](examples/clientCredentialsGrant/README.md), go to ```examples/clientCredentialsGrant```.
 
 
