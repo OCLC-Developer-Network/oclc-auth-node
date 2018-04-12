@@ -34,7 +34,7 @@ By placing this in your file:
 const nodeauth = require('nodeauth');
 ```
 
-you will have access to the OCLC authentication classes:
+you will have access to the OCLC [authentication classes](src):
 
 ```
 nodeAuth.AccessToken,
