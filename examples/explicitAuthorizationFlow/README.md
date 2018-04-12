@@ -21,7 +21,7 @@ npm install
 
 cd src
 ```
-Edit server.js and define your authentication parameters.
+Edit [server.js](examples/explicitAuthorizationFlow/src/server.js) and define your authentication parameters.
 
 Note that in this example, the example is running on port 8000 on localhost, and the redirect URI points to ```localhost:8000/auth/``` .
 

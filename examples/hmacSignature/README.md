@@ -21,7 +21,7 @@ npm install
 
 cd src
 ```
-Edit bibRecord.js and define your authentication parameters.
+Edit [bibRecord.js](examples/hmacSignature/src/bibRecord.js) and define your authentication parameters.
 * key
 * secret
 * principal ID
