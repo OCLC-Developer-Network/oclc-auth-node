@@ -7,7 +7,8 @@ const axios = require("axios");
 const express = require("express");
 const url = require("url");
 
-const Wskey = require("nodeauth/src/Wskey");
+const nodeauth = require("nodeauth");
+
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
@@ -21,7 +22,7 @@ const options = {
 };
 
 //const user = new User(authenticatingInstitutionId/*, principalID, principalIDNS*/);
-const wskey = new Wskey(key, secret, options);
+const wskey = new nodeauth.Wskey(key, secret, options);
 
 let authCode;
 let accessToken;

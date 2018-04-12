@@ -6,8 +6,7 @@
 const axios = require("axios");
 const express = require("express");
 
-const Wskey = require("nodeauth/src/Wskey");
-const User = require("nodeauth/src/user");
+const nodeauth = require("nodeauth");
 
 // Authentication parameters -------------------------------------------------------------------------------------------
 
@@ -22,8 +21,8 @@ const options = {
     services: ["WorldCatMetadataAPI"]
 };
 
-const user = new User(authenticatingInstitutionId, principalID, principalIDNS);
-const wskey = new Wskey(key, secret, options);
+const user = new nodeauth.User(authenticatingInstitutionId, principalID, principalIDNS);
+const wskey = new nodeauth.Wskey(key, secret, options);
 
 this.accessToken = null;
 

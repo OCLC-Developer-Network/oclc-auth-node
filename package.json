@@ -8,6 +8,10 @@
   },
   "author": "campbelg@oclc.org",
   "license": "MIT",
+  "repository":{
+    "type":"git",
+    "url":"https://github.com/OCLC-Developer-Network/oclc-auth-node.git"
+  },
   "devDependencies": {
     "jasmine-node": "^1.14.5"
   },

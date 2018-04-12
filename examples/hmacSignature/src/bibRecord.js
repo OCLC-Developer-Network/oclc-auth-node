@@ -3,18 +3,17 @@
  */
 
 const axios = require("axios");
-
-const Wskey = require("nodeauth/src/Wskey");
-const User = require("nodeauth/src/user");
+const nodeauth = require("nodeauth");
 
 const key = "{your clientID}";
 const secret = "{your secret}";
-const wskey = new Wskey(key, secret);
+
+const wskey = new nodeauth.Wskey(key, secret);
 
 const authenticatingInstitutionId = "{your institution ID}";
 const principalID = "{your principal ID}";
 const principalIDNS = "{your principal IDNS}";
-const user = new User(authenticatingInstitutionId, principalID, principalIDNS);
+const user = new nodeauth.User(authenticatingInstitutionId, principalID, principalIDNS);
 const options = {user: user};
 
 const url = 'https://worldcat.org/bib/data/829180274?classificationScheme=LibraryOfCongress&holdingLibraryCode=MAIN';

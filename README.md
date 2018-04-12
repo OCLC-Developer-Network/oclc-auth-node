@@ -12,6 +12,22 @@ Examples for each type of authentication are provided.
 
 ## Quick Start
 
+### Install in Your Project
+
+From the command line of your project
+
+```
+npm install git+https://github.com/OCLC-Developer-Network/oclc-auth-node.git
+```
+
+Or add this line to your package.json file
+
+```
+"nodeauth": "git+https://github.com/OCLC-Developer-Network/oclc-auth-node.git"
+```
+
+
+
 ### Installation
 
 ```
