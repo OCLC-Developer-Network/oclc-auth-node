@@ -21,7 +21,7 @@ npm install
 
 cd src
 ```
-Edit [server.js](examples/clientCredentialsGrant/src/server.js) and define your authentication parameters.
+Edit [server.js](https://github.com/OCLC-Developer-Network/oclc-auth-node/blob/master/examples/clientCredentialsGrant/src/server.js) and define your authentication parameters.
 
 Save the file with your authentication parameters.
 
