@@ -21,7 +21,6 @@ const options = {
     redirectUri: "http://localhost:8000/auth/"
 };
 
-//const user = new User(authenticatingInstitutionId/*, principalID, principalIDNS*/);
 const wskey = new nodeauth.Wskey(key, secret, options);
 
 let authCode;
