@@ -11,10 +11,10 @@ module.exports = class AuthCode {
     getLoginUrl() {
 
         const Util = require("./util.js");
-        const Config = require("./config.js");
+        const Config = require("./config. js");
         const config = new Config();
 
-        return config.AUTHORIZATION_SERVER + "/authorizeCode?" +
+        return (typeof AUTHORIZATION_SERVER_OVERRIDE !== "undefined" ? AUTHORIZATION_SERVER_OVERRIDE: config.AUTHORIZATION_SERVER) + "/authorizeCode?" +
             "client_id=" + this.clientID +
             "&authenticatingInstitutionId=" + this.authenticatingInstitutionId +
             "&contextInstitutionId=" + this.contextInstitutionId +

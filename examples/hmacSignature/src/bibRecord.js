@@ -2,6 +2,10 @@
  * HMAC Signature example - node server code
  */
 
+
+// You can override the default production authentication endpoint here
+//HMAC_AUTHORIZATION_URL_OVERRIDE = "http://optional override...";
+
 const axios = require("axios");
 const nodeauth = require("nodeauth");
 

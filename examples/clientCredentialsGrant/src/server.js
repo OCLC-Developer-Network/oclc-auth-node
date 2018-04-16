@@ -8,6 +8,10 @@ const express = require("express");
 
 const nodeauth = require("nodeauth");
 
+// You can override the default production authentication endpoints here
+//AUTHORIZATION_SERVER_OVERRIDE = "https://...";
+//HMAC_AUTHORIZATION_URL_OVERRIDE= "http://...";
+
 // Authentication parameters -------------------------------------------------------------------------------------------
 
 const key = "{your clientID}";

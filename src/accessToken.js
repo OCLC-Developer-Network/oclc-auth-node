@@ -206,7 +206,7 @@ module.exports = class AccessToken {
         const Config = require("./config.js");
         const config = new Config();
 
-        let accessTokenUrl = config.AUTHORIZATION_SERVER + "/accessToken?grant_type=" + this.grantType;
+        let accessTokenUrl = (typeof AUTHORIZATION_SERVER_OVERRIDE !== "undefined" ? AUTHORIZATION_SERVER_OVERRIDE : config.AUTHORIZATION_SERVER) + "/accessToken?grant_type=" + this.grantType;
 
         switch (this.grantType) {
             case "refresh_token":

@@ -113,11 +113,14 @@ module.exports = class Wskey {
 
         this.signedRequest = Wskey.signRequest(this.key, this.secret, method, request_url, this.bodyHash, timestamp, nonce);
 
-        let auth_header = config.HMAC_AUTHORIZATION_URL + " "
+        let auth_header = (typeof HMAC_AUTHORIZATION_URL_OVERRIDE !== "undefined" ? HMAC_AUTHORIZATION_URL_OVERRIDE : config.HMAC_AUTHORIZATION_URL) + " "
             + "clientID=" + q + this.key + qc
             + "timestamp=" + q + timestamp + qc
             + "nonce=" + q + nonce + qc
             + "signature=" + q + this.signedRequest;
+
+        console.log("auth_header = ");
+        console.log(auth_header);
 
         if (!this.user && this.authenticatingInstitutionId && this.principalID && this.principalIDNS) {
             this.user = new this.User(this.authenticatingInstitutionId, this.principalID, this.principalIDNS);
@@ -144,7 +147,7 @@ module.exports = class Wskey {
     static normalizeRequest(key, method, request_url, bodyHash, timestamp, nonce) {
 
         if (!bodyHash) {
-            bodyHash="";
+            bodyHash = "";
         }
 
         return key + "\n"
