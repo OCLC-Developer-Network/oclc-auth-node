@@ -172,4 +172,15 @@ Then use the token to get a bib record by setting it in the request header
 
 For an the [Client Credentials Grant Example](examples/clientCredentialsGrant/README.md), go to ```examples/clientCredentialsGrant```.
 
+### Overriding authentication endpoints
 
+By default, the node library uses the OCLC Production endpoints for authentication.
+
+If you want to override these, add these to the top of your script as global variables:
+
+```
+AUTHORIZATION_SERVER_OVERRIDE = "https://...";
+HMAC_AUTHORIZATION_URL_OVERRIDE= "http://...";
+```
+
+The use case would be for internal testing at OCLC.
