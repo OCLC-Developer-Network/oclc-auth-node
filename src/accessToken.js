@@ -42,14 +42,16 @@ module.exports = class AccessToken {
 
         if (autoRefresh && this.isExpired()) {
             if (this.refreshToken.isExpired()) {
-                console.log("Sorry you do not have a valid Access Token");
+                return new Promise(function (resolve, reject) {
+                    reject("Sorry you do not have a valid Access Token");
+                });
             } else {
                 return this.refresh();
             }
         } else {
             return new Promise(function (resolve) {
                 resolve(context);
-            })
+            });
         }
     }
 

@@ -119,9 +119,6 @@ module.exports = class Wskey {
             + "nonce=" + q + nonce + qc
             + "signature=" + q + this.signedRequest;
 
-        console.log("auth_header = ");
-        console.log(auth_header);
-
         if (!this.user && this.authenticatingInstitutionId && this.principalID && this.principalIDNS) {
             this.user = new this.User(this.authenticatingInstitutionId, this.principalID, this.principalIDNS);
         }
