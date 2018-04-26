@@ -48,12 +48,13 @@ module.exports = class Wskey {
         return this.signedRequest;
     }
 
-    getLoginURL(authenticatingInstitutionId, contextInstitutionId) {
+    getLoginURL(authenticatingInstitutionId, contextInstitutionId, state) {
 
         let authCode = new this.AuthCode(this.key, this.redirectUri, this.services,
             {
                 authenticatingInstitutionId: authenticatingInstitutionId,
-                contextInstitutionId: contextInstitutionId
+                contextInstitutionId: contextInstitutionId,
+                state: state ? state : null
             }
         );
         return authCode.getLoginUrl();
@@ -68,7 +69,7 @@ module.exports = class Wskey {
             redirectUri: this.redirectUri
         };
 
-        return this.getAccessToken("authorization_code", options);
+        return this.getAccessToken("code", options);
     }
 
     getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user) {
