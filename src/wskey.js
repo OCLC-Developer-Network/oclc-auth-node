@@ -69,7 +69,7 @@ module.exports = class Wskey {
             redirectUri: this.redirectUri
         };
 
-        return this.getAccessToken("code", options);
+        return this.getAccessToken("authorization_code", options);
     }
 
     getAccessTokenWithClientCredentials(authenticatingInstitutionId, contextInstitutionId, user) {

@@ -37,16 +37,16 @@ describe("Access Token", function () {
         expect(accessToken.buildAccessTokenURL()).toEqual(expectedAccessTokenURL);
     });
 
-    it("should build an authorization code token access url", function () {
+    it("should build an authorization_code token access url", function () {
 
-        const accessToken = new AccessToken("code", {
+        const accessToken = new AccessToken("authorization_code", {
                 wskey: wskey,
                 code: "auth_Ztm8UjLSKpP5V0Gskgev3v2G21sfGx18vxtA",
                 user: user,
                 contextInstitutionId: contextInstitutionId
             }),
             expectedAccessTokenURL = "https://authn.sd00.worldcat.org/oauth2/accessToken?" +
-                "grant_type=code" +
+                "grant_type=authorization_code" +
                 "&code=auth_Ztm8UjLSKpP5V0Gskgev3v2G21sfGx18vxtA" +
                 "&authenticatingInstitutionId=128807" +
                 "&contextInstitutionId=128807" +
@@ -72,7 +72,7 @@ describe("Access Token", function () {
     });
 
     it("should return the user", function () {
-        const accessToken = new AccessToken("code", {
+        const accessToken = new AccessToken("authorization_code", {
             wskey: wskey,
             authorizationCode: "auth_Ztm8UjLSKpP5V0Gskgev3v2G21sfGx18vxtA",
             user: user

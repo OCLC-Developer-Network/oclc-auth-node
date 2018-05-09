@@ -214,7 +214,7 @@ module.exports = class AccessToken {
             case "refresh_token":
                 accessTokenUrl += "&refresh_token=" + this.refreshToken.refreshToken;
                 break;
-            case "code":
+            case "authorization_code":
                 accessTokenUrl += "&code=" + this.code
                     + "&authenticatingInstitutionId=" + this.authenticatingInstitutionId
                     + "&contextInstitutionId=" + this.contextInstitutionId
