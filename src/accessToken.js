@@ -192,6 +192,15 @@ module.exports = class AccessToken {
                     "authorization": authorization
                 }
             };
+            
+            if (typeof AUTHORIZATION_SERVER_OVERRIDE !== "undefined") {
+                const agent = new https.Agent({  
+                    rejectUnauthorized: false
+          		});
+                options['rejectUnauthorized'] = false;
+                options['httpsAgent'] = agent;
+            }
+            
             const rp = require('request-promise-native');
             return rp(options)
                 .then(function (response, body) {
