@@ -194,6 +194,7 @@ module.exports = class AccessToken {
             };
             
             if (typeof AUTHORIZATION_SERVER_OVERRIDE !== "undefined") {
+                const https = require('https')
                 const agent = new https.Agent({  
                     rejectUnauthorized: false
           		});
