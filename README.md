@@ -1,6 +1,6 @@
 ## OCLC Authentication Library for Node.js developers
 
-> **WARNING**: This library is being sunset. Please use a standard OAuth 2.0 client. See https://github.com/OCLC-Developer-Network/gists/tree/master/node for example usage
+> **WARNING**: This library is being sunset. Please use a standard OAuth 2.0 client. See https://github.com/OCLC-Developer-Network/gists/tree/master/authentication/node for example usage
 
 This library contains javascript classes that handle the authentication chore so you can focus on developing your node application.
 
